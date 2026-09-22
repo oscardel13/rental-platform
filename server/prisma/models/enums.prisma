@@ -1,0 +1,134 @@
+enum PlatformRole {
+  USER
+  SUPER_ADMIN
+}
+
+enum TenantStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  SUSPENDED
+  CANCELED
+}
+
+enum UserAccessLevel {
+  CLIENT
+  DRIVER
+  WORKER
+  ADMIN
+  OWNER
+}
+
+enum TenantRole {
+  OWNER
+  ADMIN
+  DISPATCHER
+  DRIVER
+  WORKER
+  CLIENT
+}
+
+enum AuthProviderType {
+  GOOGLE
+  META
+  X
+  EMAIL
+}
+
+enum ClientType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum BookingStatus {
+  DRAFT
+  QUOTE
+  PENDING_PAYMENT
+  SCHEDULED
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingActorType {
+  ADMIN
+  CLIENT
+  SYSTEM
+}
+
+enum NoteVisibility {
+  INTERNAL
+  CUSTOMER
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  DEPOSIT_PAID
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+  AUTHORIZED
+}
+
+enum ServiceType {
+  RENTAL
+  DUMPSTER_RENTAL
+  JUNK_REMOVAL
+  DEMOLITION
+}
+
+enum InventoryCategory {
+  DUMPSTER
+  TRAILER
+  EQUIPMENT
+  PORTA_POTTY
+  STORAGE_CONTAINER
+  TOOL
+  EVENT_RENTAL
+  OTHER
+}
+
+enum InventoryStatus {
+  AVAILABLE
+  RESERVED
+  IN_USE
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+enum InventoryUnit {
+  YARD
+  FOOT
+  INCH
+  TON
+  POUND
+  GALLON
+  UNIT
+}
+
+enum InventoryColor {
+  BLUE
+  EMERALD
+  VIOLET
+  ORANGE
+  ROSE
+  CYAN
+  AMBER
+  FUCHSIA
+  INDIGO
+  TEAL
+  LIME
+  PINK
+  SLATE
+}
+
+enum InventoryPattern {
+  SOLID
+  STRIPE
+  SPLIT
+  DOT
+}

@@ -1,0 +1,201 @@
+model BookingInventoryItem {
+  id              String @id @default(cuid())
+  tenantId        String
+  bookingId       String
+  inventoryItemId String?
+
+  booking       Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem? @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
+
+  role String @default("PRIMARY")
+
+  itemCategorySnapshot InventoryCategory
+  itemLabelSnapshot    String
+  itemSizeValueSnapshot Decimal? @db.Decimal(10, 2)
+  itemSizeUnitSnapshot  InventoryUnit?
+  itemSerialSnapshot    String?
+
+  basePriceSnapshot     Decimal @db.Decimal(10, 2)
+  concretePriceSnapshot Decimal @default(0) @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, bookingId])
+  @@index([tenantId, inventoryItemId])
+  @@index([bookingId])
+  @@index([inventoryItemId])
+}
+
+model BookingAddon {
+  id        String @id @default(cuid())
+  tenantId  String
+  bookingId String
+  addonId   String?
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addon   Addon?  @relation(fields: [addonId], references: [id], onDelete: SetNull)
+
+  addonCodeSnapshot  String
+  addonNameSnapshot  String
+  addonPriceSnapshot Decimal @db.Decimal(10, 2)
+
+  quantity Int @default(1)
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, bookingId])
+  @@index([tenantId, addonId])
+  @@index([bookingId])
+  @@index([addonId])
+}
+
+model BookingNote {
+  id       String @id @default(cuid())
+  tenantId String
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  visibility NoteVisibility @default(INTERNAL)
+  body       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, bookingId])
+  @@index([bookingId])
+  @@index([visibility])
+}
+
+model BookingHistory {
+  id       String @id @default(cuid())
+  tenantId String
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  eventType  String
+  actorType  BookingActorType
+  actorLabel String?
+
+  summary  String
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, bookingId])
+  @@index([tenantId, eventType])
+  @@index([bookingId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model Booking {
+  id       String @id @default(cuid())
+  tenantId String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  bookingNumber String
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  serviceType ServiceType @default(DUMPSTER_RENTAL)
+  projectType String?
+
+  customerName  String
+  customerPhone String
+  customerEmail String?
+
+  clientType ClientType @default(INDIVIDUAL)
+
+  businessName  String?
+  businessPhone String?
+  businessEmail String?
+
+  address1 String
+  address2 String?
+  city     String
+  state    String
+  zip      String
+
+  latitude              Decimal? @db.Decimal(10, 7)
+  longitude             Decimal? @db.Decimal(10, 7)
+  distanceFromWarehouse Decimal? @db.Decimal(10, 2)
+
+  placement                String?
+  instructions             String?
+  customerNotes            String?
+  locationVerified         Boolean @default(false)
+  locationVerificationNote String?
+
+  timezone String @default("America/Denver")
+
+  deliveryDate DateTime @db.Date
+  pickupDate   DateTime? @db.Date
+
+  pickupDateUnknown Boolean @default(false)
+  rentalDaysIncluded Int     @default(7)
+
+  priorityDelivery     Boolean   @default(false)
+  deliveryTime         DateTime?
+  priorityDeliveryNote String?
+
+  bookingStatus BookingStatus @default(QUOTE)
+  paymentStatus PaymentStatus @default(UNPAID)
+
+  stripePaymentIntentId String? @unique
+  stripePaymentStatus   String?
+
+  paidAt      DateTime?
+  confirmedAt DateTime?
+
+  basePrice     Decimal @db.Decimal(10, 2)
+  deliveryFee   Decimal @default(0) @db.Decimal(10, 2)
+  mileageFee    Decimal @default(0) @db.Decimal(10, 2)
+  extraDaysFee  Decimal @default(0) @db.Decimal(10, 2)
+  overageFee    Decimal @default(0) @db.Decimal(10, 2)
+  addonsTotal   Decimal @default(0) @db.Decimal(10, 2)
+  total         Decimal @db.Decimal(10, 2)
+
+  quotedAt    DateTime?
+  scheduledAt DateTime?
+  deliveredAt DateTime?
+  pickedUpAt  DateTime?
+  cancelledAt DateTime?
+  completedAt DateTime?
+
+  inventoryItems BookingInventoryItem[]
+
+  addons  BookingAddon[]
+  notes   BookingNote[]
+  history BookingHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, bookingNumber])
+  @@index([tenantId])
+  @@index([clientId])
+  @@index([tenantId, clientId])
+  @@index([bookingStatus])
+  @@index([tenantId, bookingStatus])
+  @@index([paymentStatus])
+  @@index([tenantId, paymentStatus])
+  @@index([deliveryDate])
+  @@index([tenantId, deliveryDate])
+  @@index([pickupDate])
+  @@index([tenantId, pickupDate])
+  @@index([serviceType])
+  @@index([tenantId, serviceType])
+  @@index([customerEmail])
+  @@index([tenantId, customerEmail])
+  @@index([bookingNumber])
+  @@index([zip])
+}

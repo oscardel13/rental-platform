@@ -1,0 +1,49 @@
+model UserAuthProvider {
+  id                String           @id @default(cuid())
+  userId            String
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider          AuthProviderType
+  providerAccountId String
+
+  email             String?
+  username          String?
+  name              String?
+  picture           String?
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@index([email])
+}
+
+model User {
+  id String @id @default(cuid())
+
+  platformRole PlatformRole @default(USER)
+
+  name    String?
+  email   String? @unique
+  phone   String?
+  picture String?
+
+  isActive Boolean @default(true)
+
+  memberships TenantMembership[]
+
+  clients Client[]
+  drivers Driver[]
+  workers Worker[]
+
+  authProviders UserAuthProvider[]
+
+  lastLoginAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+}

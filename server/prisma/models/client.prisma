@@ -1,0 +1,81 @@
+model Client {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  clientType ClientType @default(INDIVIDUAL)
+
+  displayName String?
+
+  firstName String?
+  lastName  String?
+
+  email String?
+  phone String?
+
+  businessName  String?
+  businessEmail String?
+  businessPhone String?
+  taxId         String?
+
+  address1 String?
+  address2 String?
+  city     String?
+  state    String?
+  zip      String?
+  country  String? @default("US")
+
+  notes String?
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([email])
+  @@index([phone])
+  @@index([tenantId, email])
+  @@index([tenantId, phone])
+  @@index([tenantId, businessName])
+}
+
+model Driver {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+}
+
+model Worker {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([tenantId, isActive])
+}

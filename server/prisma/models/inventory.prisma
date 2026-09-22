@@ -1,0 +1,41 @@
+model InventoryItem {
+  id       String @id @default(cuid())
+  tenantId String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  category InventoryCategory @default(DUMPSTER)
+
+  label       String
+  name        String?
+  description String?
+
+  sizeValue Decimal?      @db.Decimal(10, 2)
+  sizeUnit  InventoryUnit?
+
+  serialNumber String?
+
+  primaryColor   InventoryColor   @default(SLATE)
+  secondaryColor InventoryColor?
+  colorPattern   InventoryPattern @default(SOLID)
+
+  status   InventoryStatus @default(AVAILABLE)
+  notes    String?
+  isActive Boolean         @default(true)
+
+  basePrice     Decimal @default(0) @db.Decimal(10, 2)
+  concretePrice Decimal @default(0) @db.Decimal(10, 2) //additional cost
+
+  bookingItems BookingInventoryItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, serialNumber])
+  @@index([tenantId])
+  @@index([tenantId, category])
+  @@index([tenantId, status])
+  @@index([tenantId, isActive])
+  @@index([tenantId, primaryColor])
+  @@index([tenantId, sizeValue])
+}
