@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: rental-postgres
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-rental}
+    ports:
+      - "5432:5432"
+    volumes:
+      - rental_postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-rental}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: rental-migrate
+    env_file:
+      - ./server/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rental?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["npm", "run", "prisma:deploy"]
+    restart: "no"
+  seed:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: rental-seed
+    env_file:
+      - ./server/.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-rental}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: ["npm", "run", "prisma:seed"]
+    restart: "no"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: rental-server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rental?schema=public
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  rental_postgres_data:

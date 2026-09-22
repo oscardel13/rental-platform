@@ -2,8 +2,8 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
 
     "module": "nodenext",
     "moduleResolution": "NodeNext",
@@ -38,8 +38,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true
     // "ignoreDeprecations": "6.0"
   },
-  "include": ["src/**/*.ts", "src/types/*.d.ts"],
+  "include": ["src/**/*.ts", "src/types/*.d.ts"]
 }

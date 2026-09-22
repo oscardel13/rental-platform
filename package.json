@@ -1,0 +1,32 @@
+{
+  "name": "rental-platform",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/oscardel13/rental-platform#readme",
+  "bugs": {
+    "url": "https://github.com/oscardel13/rental-platform/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oscardel13/rental-platform.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "server:dev": "npm --prefix server run dev",
+    "server:build": "npm --prefix server run build",
+    "server:typecheck": "npm --prefix server run typecheck",
+    "server:test": "npm --prefix server test",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:server:logs": "docker compose logs -f server",
+    "docker:db:logs": "docker compose logs -f postgres",
+    "docker:migrate": "docker compose run --rm migrate",
+    "docker:seed": "docker compose run --rm seed",
+    "stripe:listen": "stripe listen --forward-to localhost:8000/stripe/webhook",
+    "test": "npm run server:test"
+  }
+}

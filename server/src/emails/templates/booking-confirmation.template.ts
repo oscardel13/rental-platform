@@ -3,7 +3,11 @@ import { sendMail } from "../send-mail.ts";
 
 type BookingWithRelations = Prisma.BookingGetPayload<{
   include: {
-    dumpster: true;
+    inventoryItems: {
+      include: {
+        inventoryItem: true;
+      };
+    };
     addons: {
       include: {
         addon: true;
@@ -109,12 +113,42 @@ function safe(value: unknown): string {
   return String(value);
 }
 
-function getDumpsterName(booking: BookingWithRelations): string {
-  if (booking.dumpsterLabel) return booking.dumpsterLabel;
-  if (booking.dumpster?.label) return booking.dumpster.label;
-  if (booking.dumpsterSize) return `${booking.dumpsterSize} Yard Dumpster`;
+function getPrimaryInventoryItem(booking: BookingWithRelations) {
+  return (
+    booking.inventoryItems?.find((item) => item.role === "PRIMARY") ??
+    booking.inventoryItems?.[0] ??
+    null
+  );
+}
+
+function getInventoryItemName(booking: BookingWithRelations): string {
+  const primaryItem = getPrimaryInventoryItem(booking);
+
+  if (primaryItem?.itemLabelSnapshot) {
+    return primaryItem.itemLabelSnapshot;
+  }
+
+  if (primaryItem?.inventoryItem?.label) {
+    return primaryItem.inventoryItem.label;
+  }
+
+  if (primaryItem?.itemSizeValueSnapshot) {
+    return `${Number(primaryItem.itemSizeValueSnapshot)} Yard Dumpster`;
+  }
 
   return "Dumpster Rental";
+}
+
+function getMaterialName(booking: BookingWithRelations): string {
+  const concreteAddon = booking.addons?.find((bookingAddon) => {
+    return bookingAddon.addonCodeSnapshot === "concreteSurcharge";
+  });
+
+  if (concreteAddon) {
+    return "Concrete";
+  }
+
+  return "Standard";
 }
 
 function getAddressHtml(booking: BookingWithRelations): string {
@@ -138,11 +172,14 @@ function getAddressText(booking: BookingWithRelations): string {
 }
 
 function getAddonName(bookingAddon: BookingWithRelations["addons"][number]) {
-  return bookingAddon.addon?.name || "Add-on";
+  return bookingAddon.addonNameSnapshot || bookingAddon.addon?.name || "Add-on";
 }
 
 function getAddonTotal(bookingAddon: BookingWithRelations["addons"][number]) {
-  return bookingAddon.addon?.price || 0;
+  const price =
+    bookingAddon.addonPriceSnapshot ?? bookingAddon.addon?.price ?? 0;
+
+  return toNumber(price) * Number(bookingAddon.quantity || 1);
 }
 
 function buildAddonRows(booking: BookingWithRelations): string {
@@ -201,7 +238,7 @@ function buildInvoiceRows(booking: BookingWithRelations): string {
             ${money(row.value)}
           </td>
         </tr>
-      `
+      `,
     )
     .join("");
 
@@ -218,7 +255,7 @@ function buildPriorityDeliverySection(booking: BookingWithRelations): string {
         ${
           booking.deliveryTime
             ? `Requested delivery time: <strong>${formatTime(
-                booking.deliveryTime
+                booking.deliveryTime,
               )}</strong>`
             : "Customer requested priority delivery."
         }
@@ -245,7 +282,7 @@ function buildJobNotesSection(booking: BookingWithRelations): string {
         ${
           booking.placement
             ? `<div><strong>Placement:</strong> ${safe(
-                booking.placement
+                booking.placement,
               )}</div>`
             : ""
         }
@@ -253,7 +290,7 @@ function buildJobNotesSection(booking: BookingWithRelations): string {
         ${
           booking.instructions
             ? `<div><strong>Instructions:</strong> ${safe(
-                booking.instructions
+                booking.instructions,
               )}</div>`
             : ""
         }
@@ -261,7 +298,7 @@ function buildJobNotesSection(booking: BookingWithRelations): string {
         ${
           booking.customerNotes
             ? `<div><strong>Customer notes:</strong> ${safe(
-                booking.customerNotes
+                booking.customerNotes,
               )}</div>`
             : ""
         }
@@ -272,7 +309,8 @@ function buildJobNotesSection(booking: BookingWithRelations): string {
 
 function buildBookingConfirmationHtml(booking: BookingWithRelations): string {
   const invoiceRows = buildInvoiceRows(booking);
-  const dumpsterName = getDumpsterName(booking);
+  const inventoryItemName = getInventoryItemName(booking);
+  const materialName = getMaterialName(booking);
   const hasPickupDate = booking.pickupDate && !booking.pickupDateUnknown;
 
   return `
@@ -334,10 +372,10 @@ function buildBookingConfirmationHtml(booking: BookingWithRelations): string {
                     <td style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px;">
                       <div style="font-size: 13px; color: #6b7280; margin-bottom: 6px;">Service</div>
                       <div style="font-size: 16px; font-weight: 700;">${safe(
-                        dumpsterName
+                        inventoryItemName,
                       )}</div>
                       <div style="margin-top: 6px; color: #4b5563; font-size: 14px;">
-                        Material: ${safe(booking.material)}
+                        Material: ${safe(materialName)}
                       </div>
                     </td>
                   </tr>
@@ -371,7 +409,7 @@ function buildBookingConfirmationHtml(booking: BookingWithRelations): string {
                       ${
                         hasPickupDate
                           ? `<div style="font-size: 14px; color: #4b5563; margin-top: 4px;">${formatTime(
-                              booking.pickupDate
+                              booking.pickupDate,
                             )}</div>`
                           : ""
                       }
@@ -401,7 +439,7 @@ function buildBookingConfirmationHtml(booking: BookingWithRelations): string {
                         <tr>
                           <td style="padding: 12px 0; color: #4b5563; border-bottom: 1px solid #e5e7eb;">Base price</td>
                           <td style="padding: 12px 0; text-align: right; color: #111827; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${money(
-                            booking.basePrice
+                            booking.basePrice,
                           )}</td>
                         </tr>
                       `
@@ -459,8 +497,8 @@ function buildBookingConfirmationText(booking: BookingWithRelations): string {
           .map(
             (bookingAddon) =>
               `${getAddonName(bookingAddon)}: ${money(
-                getAddonTotal(bookingAddon)
-              )}`
+                getAddonTotal(bookingAddon),
+              )}`,
           )
           .join("\n")
       : "Add-ons: $0.00";
@@ -473,9 +511,10 @@ Hi ${booking.customerName},
 Thanks for booking with Iron Peak Services.
 
 Booking Number: ${booking.bookingNumber}
-Service: ${getDumpsterName(booking)}
+Service: ${getInventoryItemName(booking)}
+Material: ${getMaterialName(booking)}
 Delivery: ${formatDate(booking.deliveryDate)} ${formatTime(
-    booking.deliveryDate
+    booking.deliveryDate,
   )}
 Pickup: ${
     booking.pickupDate && !booking.pickupDateUnknown
@@ -512,10 +551,12 @@ If anything looks incorrect, contact us at ${COMPANY.phone} or ${COMPANY.email}.
 }
 
 export async function sendBookingConfirmationEmail(
-  booking: BookingWithRelations
+  booking: BookingWithRelations,
 ): Promise<void> {
   if (!booking.customerEmail) {
-    throw new Error("Cannot send booking confirmation: customerEmail is missing");
+    throw new Error(
+      "Cannot send booking confirmation: customerEmail is missing",
+    );
   }
 
   await sendMail({
