@@ -23,12 +23,12 @@ async function main() {
   // 1. Tenant must exist before tenant-owned records.
   // 2. Addons and inventory must exist before bookings.
   // 3. Bookings create inventory assignments and addon snapshots.
-  await seedUsers(prisma);
   await seedTenants(prisma);
+  await seedUsers(prisma);
+  await seedTenantMemberships(prisma);
   await seedAddons(prisma);
   await seedDumpsters(prisma);
   await seedDumpsterBookings(prisma);
-  await seedTenantMemberships(prisma);
 
   console.log("\n✅ Database seed complete");
 }

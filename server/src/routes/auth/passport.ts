@@ -81,17 +81,14 @@ const SUPER_ADMIN_EMAILS = new Set(
   getEmailsFromEnv(process.env.SUPER_ADMIN_EMAILS),
 );
 
-const OWNER_EMAILS = new Set(getEmailsFromEnv(process.env.OWNER_EMAILS));
-const ADMIN_EMAILS = new Set(getEmailsFromEnv(process.env.ADMIN_EMAILS));
-
-function getAllowedTenantRole(email?: string | null) {
+function getEnvTenantRole(email?: string | null) {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail) return null;
 
-  if (SUPER_ADMIN_EMAILS.has(normalizedEmail)) return TenantRole.OWNER;
-  if (OWNER_EMAILS.has(normalizedEmail)) return TenantRole.OWNER;
-  if (ADMIN_EMAILS.has(normalizedEmail)) return TenantRole.ADMIN;
+  if (SUPER_ADMIN_EMAILS.has(normalizedEmail)) {
+    return TenantRole.OWNER;
+  }
 
   return null;
 }
@@ -224,43 +221,6 @@ async function linkAuthProvider({
   });
 }
 
-async function upsertTenantMembership({
-  userId,
-  tenantId,
-  role,
-}: {
-  userId: string;
-  tenantId: string;
-  role: TenantRole;
-}) {
-  return prisma.tenantMembership.upsert({
-    where: {
-      userId_tenantId: {
-        userId,
-        tenantId,
-      },
-    },
-    update: {
-      role,
-      isActive: true,
-    },
-    create: {
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
-      tenant: {
-        connect: {
-          id: tenantId,
-        },
-      },
-      role,
-      isActive: true,
-    },
-  });
-}
-
 async function findOrCreateClientForTenant({
   userId,
   tenantId,
@@ -306,6 +266,68 @@ async function findOrCreateClientForTenant({
   });
 }
 
+async function getExistingTenantMembership({
+  userId,
+  tenantId,
+}: {
+  userId: string;
+  tenantId: string;
+}) {
+  return prisma.tenantMembership.findUnique({
+    where: {
+      userId_tenantId: {
+        userId,
+        tenantId,
+      },
+    },
+  });
+}
+
+async function createTenantMembership({
+  userId,
+  tenantId,
+  role,
+}: {
+  userId: string;
+  tenantId: string;
+  role: TenantRole;
+}) {
+  return prisma.tenantMembership.create({
+    data: {
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+      tenant: {
+        connect: {
+          id: tenantId,
+        },
+      },
+      role,
+      isActive: true,
+    },
+  });
+}
+
+async function updateTenantMembershipRole({
+  membershipId,
+  role,
+}: {
+  membershipId: string;
+  role: TenantRole;
+}) {
+  return prisma.tenantMembership.update({
+    where: {
+      id: membershipId,
+    },
+    data: {
+      role,
+      isActive: true,
+    },
+  });
+}
+
 export async function findOrCreateAdminFromProvider({
   provider,
   providerId,
@@ -324,12 +346,6 @@ export async function findOrCreateAdminFromProvider({
     throw new Error("Email is required for admin login.");
   }
 
-  const allowedTenantRole = getAllowedTenantRole(normalizedEmail);
-
-  if (!allowedTenantRole) {
-    throw new Error("This email is not allowed to access the admin dashboard.");
-  }
-
   const providerType = providerMap[provider];
   const tenant = await getDefaultTenant();
 
@@ -339,7 +355,15 @@ export async function findOrCreateAdminFromProvider({
     email: normalizedEmail,
   });
 
+  const envTenantRole = getEnvTenantRole(normalizedEmail);
+
   if (!user) {
+    if (!envTenantRole) {
+      throw new Error(
+        "This email is not allowed to access the admin dashboard.",
+      );
+    }
+
     user = await prisma.user.create({
       data: {
         email: normalizedEmail,
@@ -395,11 +419,40 @@ export async function findOrCreateAdminFromProvider({
     picture: picture ?? null,
   });
 
-  const membership = await upsertTenantMembership({
+  const existingMembership = await getExistingTenantMembership({
     userId: user.id,
     tenantId: tenant.id,
-    role: allowedTenantRole,
   });
+
+  let membership = existingMembership;
+
+  if (!membership) {
+    if (!envTenantRole) {
+      throw new Error(
+        "This email is not allowed to access the admin dashboard.",
+      );
+    }
+
+    membership = await createTenantMembership({
+      userId: user.id,
+      tenantId: tenant.id,
+      role: envTenantRole,
+    });
+  } else if (!membership.isActive) {
+    throw new Error("This tenant membership is inactive.");
+  } else if (envTenantRole) {
+    const strongestRole = getStrongestTenantRole(
+      membership.role,
+      envTenantRole,
+    );
+
+    if (membership.role !== strongestRole) {
+      membership = await updateTenantMembershipRole({
+        membershipId: membership.id,
+        role: strongestRole,
+      });
+    }
+  }
 
   if (!isAdminRole(membership.role)) {
     throw new Error("You do not have admin access.");
