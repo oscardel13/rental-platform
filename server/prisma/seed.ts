@@ -7,6 +7,7 @@ import { seedTenants } from "./seed/tenants/tenants.seed.js";
 import { seedAddons } from "./seed/addons/addons.seed.js";
 import { seedDumpsters } from "./seed/dumpsters/dumpsters.seed.js";
 import { seedDumpsterBookings } from "./seed/dumpster-bookings/dumpster-bookings.seed.js";
+import { seedTenantMemberships } from "./seed/tenant-memberships/tenant-memberships.seed.ts";
 import { seedUsers } from "./seed/users/users.seed.js";
 
 const prisma = new PrismaClient({
@@ -22,11 +23,13 @@ async function main() {
   // 1. Tenant must exist before tenant-owned records.
   // 2. Addons and inventory must exist before bookings.
   // 3. Bookings create inventory assignments and addon snapshots.
+  await seedUsers(prisma);
   await seedTenants(prisma);
   await seedAddons(prisma);
   await seedDumpsters(prisma);
   await seedDumpsterBookings(prisma);
-  await seedUsers(prisma);
+  await seedTenantMemberships(prisma);
+
   console.log("\n✅ Database seed complete");
 }
 

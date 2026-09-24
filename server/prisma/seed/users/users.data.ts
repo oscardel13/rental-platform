@@ -10,4 +10,13 @@ export const usersData = [
     platformRole: PlatformRole.SUPER_ADMIN,
     isActive: true,
   },
+  {
+    id: "user-alejandro-user",
+    name: "Alejandro",
+    email: "ironpeakservices.llc@gmail.com",
+    phone: "7208257521",
+    picture: null,
+    platformRole: PlatformRole.USER,
+    isActive: true,
+  },
 ];

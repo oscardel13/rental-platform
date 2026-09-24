@@ -43,9 +43,13 @@ const pgPool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+const isProduction = process.env.NODE_ENV === "production";
+const isStaging = process.env.NODE_ENV === "staging";
+const isSecureEnv = isProduction || isStaging;
+
 app.use(
   session({
-    name: "ironpeak.sid",
+    name: "rental.sid",
     secret: COOKIE_KEYS,
     resave: false,
     saveUninitialized: false,
@@ -53,8 +57,8 @@ app.use(
     cookie: {
       maxAge: config.COOKIE_MAX_AGE,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isSecureEnv,
+      sameSite: isSecureEnv ? "none" : "lax",
     },
     store: new PgSession({
       pool: pgPool,

@@ -1,19 +1,62 @@
 // prisma/seed/dumpster-bookings/dumpster-bookings.seed.ts
 
 import type { PrismaClient } from "../../../src/generated/prisma/client.js";
+import {
+  ClientType,
+  NoteVisibility,
+} from "../../../src/generated/prisma/client.js";
 
 import { getIronPeakTenant } from "../tenants/tenants.helpers.js";
 import { dumpsterBookingsData } from "./dumpster-bookings.data.js";
 
-const CONCRETE_SURCHARGE_ADDON_CODE = "concreteSurcharge";
-
-function optionalValue<T extends object, K extends string>(object: T, key: K) {
-  return key in object ? (object as Record<K, unknown>)[key] : null;
-}
+const EXTRA_DAY_RATE = 25;
 
 function toNumber(value: unknown) {
   const numberValue = Number(value || 0);
   return Number.isFinite(numberValue) ? numberValue : 0;
+}
+
+function addDays(days: number) {
+  const date = new Date();
+  date.setHours(9, 0, 0, 0);
+  date.setDate(date.getDate() + days);
+  return date;
+}
+
+function addDaysToDate(date: Date, days: number) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + days);
+  return nextDate;
+}
+
+function getLifecycleDates({
+  deliveryDate,
+  pickupDate,
+  bookingStatus,
+  paymentStatus,
+}: {
+  deliveryDate: Date;
+  pickupDate: Date | null;
+  bookingStatus: string;
+  paymentStatus: string;
+}) {
+  const now = new Date();
+  const isPaid = paymentStatus === "PAID";
+
+  return {
+    quotedAt: addDaysToDate(deliveryDate, -4),
+    scheduledAt: ["SCHEDULED", "ACTIVE", "COMPLETED"].includes(bookingStatus)
+      ? addDaysToDate(deliveryDate, -3)
+      : null,
+    confirmedAt: isPaid ? addDaysToDate(deliveryDate, -3) : null,
+    paidAt: isPaid ? addDaysToDate(deliveryDate, -3) : null,
+    deliveredAt: ["ACTIVE", "COMPLETED"].includes(bookingStatus)
+      ? deliveryDate
+      : null,
+    pickedUpAt: bookingStatus === "COMPLETED" ? pickupDate : null,
+    completedAt: bookingStatus === "COMPLETED" ? (pickupDate ?? now) : null,
+    cancelledAt: bookingStatus === "CANCELLED" ? now : null,
+  };
 }
 
 export async function seedDumpsterBookings(prisma: PrismaClient) {
@@ -22,31 +65,60 @@ export async function seedDumpsterBookings(prisma: PrismaClient) {
   const tenant = await getIronPeakTenant(prisma);
 
   for (const booking of dumpsterBookingsData) {
-    const {
-      dumpsterId,
-      dumpsterSize,
-      totalPrice,
-      concreteSurcharge,
-      material,
-      ...data
-    } = booking;
-
-    const concreteSurchargeAmount = toNumber(concreteSurcharge);
-    const normalizedAddonsTotal =
-      toNumber(data.addonsTotal) + concreteSurchargeAmount;
-
     const inventoryItem = await prisma.inventoryItem.findFirst({
       where: {
         tenantId: tenant.id,
-        id: dumpsterId,
+        id: booking.inventoryItemId,
       },
     });
 
     if (!inventoryItem) {
       throw new Error(
-        `Inventory item not found for booking ${booking.bookingNumber}: ${dumpsterId}`,
+        `Inventory item not found for booking ${booking.bookingNumber}: ${booking.inventoryItemId}`,
       );
     }
+
+    const deliveryDate = addDays(booking.deliveryOffsetDays);
+    const pickupDate = booking.pickupDateUnknown
+      ? null
+      : addDaysToDate(deliveryDate, booking.rentalDays);
+
+    const rentalDaysIncluded = booking.rentalDaysIncluded ?? 7;
+    const extraDays = Math.max(booking.rentalDays - rentalDaysIncluded, 0);
+
+    const basePrice = toNumber(inventoryItem.basePrice);
+    const deliveryFee = toNumber(booking.deliveryFee);
+    const mileageFee = toNumber(booking.mileageFee);
+    const overageFee = toNumber(booking.overageFee);
+    const extraDaysFee =
+      booking.extraDaysFee !== undefined
+        ? toNumber(booking.extraDaysFee)
+        : extraDays * EXTRA_DAY_RATE;
+
+    const selectedAddons = await getSelectedAddons({
+      prisma,
+      tenantId: tenant.id,
+      addonCodes: booking.addonCodes ?? [],
+    });
+
+    const addonsTotal = selectedAddons.reduce((sum, addon) => {
+      return sum + toNumber(addon.price);
+    }, 0);
+
+    const total =
+      basePrice +
+      deliveryFee +
+      mileageFee +
+      overageFee +
+      extraDaysFee +
+      addonsTotal;
+
+    const lifecycleDates = getLifecycleDates({
+      deliveryDate,
+      pickupDate,
+      bookingStatus: booking.bookingStatus,
+      paymentStatus: booking.paymentStatus,
+    });
 
     const bookingRecord = await prisma.booking.upsert({
       where: {
@@ -63,85 +135,63 @@ export async function seedDumpsterBookings(prisma: PrismaClient) {
           },
         },
 
-        serviceType: data.serviceType,
-        projectType: optionalValue(data, "projectType") as string | null,
+        serviceType: booking.serviceType,
+        projectType: booking.projectType ?? null,
 
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        customerEmail: data.customerEmail,
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        customerEmail: booking.customerEmail,
 
-        clientType: (optionalValue(data, "clientType") as any) ?? "INDIVIDUAL",
+        clientType: booking.clientType ?? ClientType.INDIVIDUAL,
 
-        businessName: optionalValue(data, "businessName") as string | null,
-        businessPhone: optionalValue(data, "businessPhone") as string | null,
-        businessEmail: optionalValue(data, "businessEmail") as string | null,
+        businessName: booking.businessName ?? null,
+        businessPhone: booking.businessPhone ?? null,
+        businessEmail: booking.businessEmail ?? null,
 
-        address1: data.address1,
-        address2: optionalValue(data, "address2") as string | null,
-        city: data.city,
-        state: data.state,
-        zip: data.zip,
+        address1: booking.address1,
+        address2: booking.address2 ?? null,
+        city: booking.city,
+        state: booking.state,
+        zip: booking.zip,
 
-        latitude: optionalValue(data, "latitude") as any,
-        longitude: optionalValue(data, "longitude") as any,
-        distanceFromWarehouse: optionalValue(
-          data,
-          "distanceFromWarehouse",
-        ) as any,
+        latitude: booking.latitude ?? null,
+        longitude: booking.longitude ?? null,
+        distanceFromWarehouse: booking.distanceFromWarehouse ?? null,
 
-        placement: data.placement,
-        instructions: data.instructions,
-        customerNotes: data.customerNotes,
+        placement: booking.placement,
+        instructions: booking.instructions,
+        customerNotes: booking.customerNotes,
 
-        locationVerified: data.locationVerified,
-        locationVerificationNote: optionalValue(
-          data,
-          "locationVerificationNote",
-        ) as string | null,
+        locationVerified: booking.locationVerified,
+        locationVerificationNote: booking.locationVerificationNote ?? null,
 
         timezone: tenant.timezone,
 
-        deliveryDate: data.deliveryDate,
-        pickupDate: data.pickupDate,
+        deliveryDate,
+        pickupDate,
 
-        pickupDateUnknown: data.pickupDateUnknown,
-        rentalDaysIncluded: data.rentalDaysIncluded,
+        pickupDateUnknown: booking.pickupDateUnknown ?? false,
+        rentalDaysIncluded,
 
-        priorityDelivery:
-          (optionalValue(data, "priorityDelivery") as boolean | null) ?? false,
-        deliveryTime: optionalValue(data, "deliveryTime") as Date | null,
-        priorityDeliveryNote: optionalValue(data, "priorityDeliveryNote") as
-          | string
-          | null,
+        priorityDelivery: booking.priorityDelivery ?? false,
+        deliveryTime: booking.priorityDelivery ? deliveryDate : null,
+        priorityDeliveryNote: booking.priorityDeliveryNote ?? null,
 
-        bookingStatus: data.bookingStatus,
-        paymentStatus: data.paymentStatus,
+        bookingStatus: booking.bookingStatus,
+        paymentStatus: booking.paymentStatus,
 
-        stripePaymentIntentId: optionalValue(data, "stripePaymentIntentId") as
-          | string
-          | null,
-        stripePaymentStatus: optionalValue(data, "stripePaymentStatus") as
-          | string
-          | null,
+        stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
+        stripePaymentStatus: booking.stripePaymentStatus ?? null,
 
-        paidAt: optionalValue(data, "paidAt") as Date | null,
-        confirmedAt: optionalValue(data, "confirmedAt") as Date | null,
+        basePrice,
+        deliveryFee,
+        mileageFee,
+        overageFee,
+        extraDaysFee,
+        addonsTotal,
+        total,
 
-        basePrice: data.basePrice,
-        deliveryFee: data.deliveryFee,
-        mileageFee: data.mileageFee,
-        overageFee: data.overageFee,
-        extraDaysFee: data.extraDaysFee,
-        addonsTotal: normalizedAddonsTotal,
-
-        total: totalPrice,
-
-        quotedAt: optionalValue(data, "quotedAt") as Date | null,
-        scheduledAt: optionalValue(data, "scheduledAt") as Date | null,
-        deliveredAt: optionalValue(data, "deliveredAt") as Date | null,
-        pickedUpAt: optionalValue(data, "pickedUpAt") as Date | null,
-        cancelledAt: optionalValue(data, "cancelledAt") as Date | null,
-        completedAt: optionalValue(data, "completedAt") as Date | null,
+        ...lifecycleDates,
       },
 
       create: {
@@ -153,85 +203,63 @@ export async function seedDumpsterBookings(prisma: PrismaClient) {
 
         bookingNumber: booking.bookingNumber,
 
-        serviceType: data.serviceType,
-        projectType: optionalValue(data, "projectType") as string | null,
+        serviceType: booking.serviceType,
+        projectType: booking.projectType ?? null,
 
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        customerEmail: data.customerEmail,
+        customerName: booking.customerName,
+        customerPhone: booking.customerPhone,
+        customerEmail: booking.customerEmail,
 
-        clientType: (optionalValue(data, "clientType") as any) ?? "INDIVIDUAL",
+        clientType: booking.clientType ?? ClientType.INDIVIDUAL,
 
-        businessName: optionalValue(data, "businessName") as string | null,
-        businessPhone: optionalValue(data, "businessPhone") as string | null,
-        businessEmail: optionalValue(data, "businessEmail") as string | null,
+        businessName: booking.businessName ?? null,
+        businessPhone: booking.businessPhone ?? null,
+        businessEmail: booking.businessEmail ?? null,
 
-        address1: data.address1,
-        address2: optionalValue(data, "address2") as string | null,
-        city: data.city,
-        state: data.state,
-        zip: data.zip,
+        address1: booking.address1,
+        address2: booking.address2 ?? null,
+        city: booking.city,
+        state: booking.state,
+        zip: booking.zip,
 
-        latitude: optionalValue(data, "latitude") as any,
-        longitude: optionalValue(data, "longitude") as any,
-        distanceFromWarehouse: optionalValue(
-          data,
-          "distanceFromWarehouse",
-        ) as any,
+        latitude: booking.latitude ?? null,
+        longitude: booking.longitude ?? null,
+        distanceFromWarehouse: booking.distanceFromWarehouse ?? null,
 
-        placement: data.placement,
-        instructions: data.instructions,
-        customerNotes: data.customerNotes,
+        placement: booking.placement,
+        instructions: booking.instructions,
+        customerNotes: booking.customerNotes,
 
-        locationVerified: data.locationVerified,
-        locationVerificationNote: optionalValue(
-          data,
-          "locationVerificationNote",
-        ) as string | null,
+        locationVerified: booking.locationVerified,
+        locationVerificationNote: booking.locationVerificationNote ?? null,
 
         timezone: tenant.timezone,
 
-        deliveryDate: data.deliveryDate,
-        pickupDate: data.pickupDate,
+        deliveryDate,
+        pickupDate,
 
-        pickupDateUnknown: data.pickupDateUnknown,
-        rentalDaysIncluded: data.rentalDaysIncluded,
+        pickupDateUnknown: booking.pickupDateUnknown ?? false,
+        rentalDaysIncluded,
 
-        priorityDelivery:
-          (optionalValue(data, "priorityDelivery") as boolean | null) ?? false,
-        deliveryTime: optionalValue(data, "deliveryTime") as Date | null,
-        priorityDeliveryNote: optionalValue(data, "priorityDeliveryNote") as
-          | string
-          | null,
+        priorityDelivery: booking.priorityDelivery ?? false,
+        deliveryTime: booking.priorityDelivery ? deliveryDate : null,
+        priorityDeliveryNote: booking.priorityDeliveryNote ?? null,
 
-        bookingStatus: data.bookingStatus,
-        paymentStatus: data.paymentStatus,
+        bookingStatus: booking.bookingStatus,
+        paymentStatus: booking.paymentStatus,
 
-        stripePaymentIntentId: optionalValue(data, "stripePaymentIntentId") as
-          | string
-          | null,
-        stripePaymentStatus: optionalValue(data, "stripePaymentStatus") as
-          | string
-          | null,
+        stripePaymentIntentId: booking.stripePaymentIntentId ?? null,
+        stripePaymentStatus: booking.stripePaymentStatus ?? null,
 
-        paidAt: optionalValue(data, "paidAt") as Date | null,
-        confirmedAt: optionalValue(data, "confirmedAt") as Date | null,
+        basePrice,
+        deliveryFee,
+        mileageFee,
+        overageFee,
+        extraDaysFee,
+        addonsTotal,
+        total,
 
-        basePrice: data.basePrice,
-        deliveryFee: data.deliveryFee,
-        mileageFee: data.mileageFee,
-        overageFee: data.overageFee,
-        extraDaysFee: data.extraDaysFee,
-        addonsTotal: normalizedAddonsTotal,
-
-        total: totalPrice,
-
-        quotedAt: optionalValue(data, "quotedAt") as Date | null,
-        scheduledAt: optionalValue(data, "scheduledAt") as Date | null,
-        deliveredAt: optionalValue(data, "deliveredAt") as Date | null,
-        pickedUpAt: optionalValue(data, "pickedUpAt") as Date | null,
-        cancelledAt: optionalValue(data, "cancelledAt") as Date | null,
-        completedAt: optionalValue(data, "completedAt") as Date | null,
+        ...lifecycleDates,
       },
     });
 
@@ -242,15 +270,57 @@ export async function seedDumpsterBookings(prisma: PrismaClient) {
       inventoryItem,
     });
 
-    await upsertConcreteSurchargeAddon({
+    await syncBookingAddons({
       prisma,
       tenantId: tenant.id,
       bookingId: bookingRecord.id,
-      concreteSurcharge: concreteSurchargeAmount,
+      addons: selectedAddons,
+    });
+
+    await upsertBookingSeedNote({
+      prisma,
+      tenantId: tenant.id,
+      bookingId: bookingRecord.id,
+      summary: `Seeded ${booking.projectType ?? booking.material} booking for ${
+        booking.customerName
+      }.`,
     });
   }
 
   console.log(`   ✓ ${dumpsterBookingsData.length} bookings seeded`);
+}
+
+async function getSelectedAddons({
+  prisma,
+  tenantId,
+  addonCodes,
+}: {
+  prisma: PrismaClient;
+  tenantId: string;
+  addonCodes: string[];
+}) {
+  if (addonCodes.length === 0) return [];
+
+  const addons = await prisma.addon.findMany({
+    where: {
+      tenantId,
+      code: {
+        in: addonCodes,
+      },
+    },
+  });
+
+  const foundCodes = new Set(addons.map((addon) => addon.code));
+
+  for (const addonCode of addonCodes) {
+    if (!foundCodes.has(addonCode)) {
+      throw new Error(
+        `Addon "${addonCode}" was not found. Seed addons before bookings.`,
+      );
+    }
+  }
+
+  return addons;
 }
 
 async function upsertBookingInventoryItem({
@@ -318,86 +388,108 @@ async function upsertBookingInventoryItem({
   });
 }
 
-async function upsertConcreteSurchargeAddon({
+async function syncBookingAddons({
   prisma,
   tenantId,
   bookingId,
-  concreteSurcharge,
+  addons,
 }: {
   prisma: PrismaClient;
   tenantId: string;
   bookingId: string;
-  concreteSurcharge: number;
+  addons: Awaited<ReturnType<typeof getSelectedAddons>>;
 }) {
-  if (concreteSurcharge <= 0) {
-    await prisma.bookingAddon.deleteMany({
-      where: {
-        tenantId,
-        bookingId,
-        addonCodeSnapshot: CONCRETE_SURCHARGE_ADDON_CODE,
-      },
-    });
+  const addonIds = addons.map((addon) => addon.id);
 
-    return;
-  }
-
-  const addon = await prisma.addon.findUnique({
-    where: {
-      tenantId_code: {
-        tenantId,
-        code: CONCRETE_SURCHARGE_ADDON_CODE,
-      },
-    },
-  });
-
-  if (!addon) {
-    throw new Error(
-      `Addon "${CONCRETE_SURCHARGE_ADDON_CODE}" was not found. Seed addons before bookings.`,
-    );
-  }
-
-  const existingBookingAddon = await prisma.bookingAddon.findFirst({
+  await prisma.bookingAddon.deleteMany({
     where: {
       tenantId,
       bookingId,
-      addonId: addon.id,
+      ...(addonIds.length
+        ? {
+            addonId: {
+              notIn: addonIds,
+            },
+          }
+        : {}),
     },
   });
 
-  const data = {
-    tenantId,
-
-    addonCodeSnapshot: addon.code,
-    addonNameSnapshot: addon.name,
-    addonPriceSnapshot: concreteSurcharge,
-
-    quantity: 1,
-  };
-
-  if (existingBookingAddon) {
-    await prisma.bookingAddon.update({
+  for (const addon of addons) {
+    const existingBookingAddon = await prisma.bookingAddon.findFirst({
       where: {
-        id: existingBookingAddon.id,
+        tenantId,
+        bookingId,
+        addonId: addon.id,
       },
-      data,
     });
 
-    return;
-  }
+    const data = {
+      tenantId,
 
-  await prisma.bookingAddon.create({
+      addonCodeSnapshot: addon.code,
+      addonNameSnapshot: addon.name,
+      addonPriceSnapshot: addon.price,
+
+      quantity: 1,
+    };
+
+    if (existingBookingAddon) {
+      await prisma.bookingAddon.update({
+        where: {
+          id: existingBookingAddon.id,
+        },
+        data,
+      });
+
+      continue;
+    }
+
+    await prisma.bookingAddon.create({
+      data: {
+        ...data,
+        booking: {
+          connect: {
+            id: bookingId,
+          },
+        },
+        addon: {
+          connect: {
+            id: addon.id,
+          },
+        },
+      },
+    });
+  }
+}
+
+async function upsertBookingSeedNote({
+  prisma,
+  tenantId,
+  bookingId,
+  summary,
+}: {
+  prisma: PrismaClient;
+  tenantId: string;
+  bookingId: string;
+  summary: string;
+}) {
+  const existingNote = await prisma.bookingNote.findFirst({
+    where: {
+      tenantId,
+      bookingId,
+      body: summary,
+    },
+  });
+
+  if (existingNote) return;
+
+  await prisma.bookingNote.create({
     data: {
-      ...data,
-      booking: {
-        connect: {
-          id: bookingId,
-        },
-      },
-      addon: {
-        connect: {
-          id: addon.id,
-        },
-      },
+      tenantId,
+      bookingId,
+      visibility: NoteVisibility.INTERNAL,
+      body: summary,
     },
   });
 }
