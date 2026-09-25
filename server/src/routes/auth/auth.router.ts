@@ -1,4 +1,5 @@
 import "dotenv/config";
+
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 
@@ -8,19 +9,28 @@ import {
   configureGooglePassport,
   GOOGLE_SCOPE_PROFILE_FIELDS,
 } from "./google.passport.js";
-
 import { HttpAuthFailure, HttpGetMe, HttpLogout } from "./auth.controller.js";
 
-// import { configureFacebookPassport } from "./facebook.passport.js";
-// import { configureXPassport } from "./x.passport.js";
-
-const allowedClientOrigins = process.env.ORIGIN_WHITELIST?.split(",") || [];
+type GoogleAuthOptions = {
+  scope?: string[];
+  state?: string;
+  callbackURL?: string;
+  failureRedirect?: string;
+};
 
 const AuthRouter = Router();
 
 configureGooglePassport();
-// configureFacebookPassport();
-// configureXPassport();
+
+const allowedClientOrigins =
+  process.env.ORIGIN_WHITELIST?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean) || [];
+
+const allowedApiOrigins =
+  process.env.API_ORIGIN_WHITELIST?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean) || [];
 
 function encodeOAuthState(state: object) {
   return Buffer.from(JSON.stringify(state)).toString("base64url");
@@ -53,6 +63,23 @@ function getRequestOrigin(req: Request) {
   return null;
 }
 
+function getApiOrigin(req: Request) {
+  const protocol = req.protocol;
+  const host = req.get("host");
+
+  if (!host) {
+    throw new Error("Missing request host.");
+  }
+
+  const apiOrigin = `${protocol}://${host}`;
+
+  if (allowedApiOrigins.length && !allowedApiOrigins.includes(apiOrigin)) {
+    throw new Error(`API origin is not allowed: ${apiOrigin}`);
+  }
+
+  return apiOrigin;
+}
+
 function getSafeClientOrigin(req: Request) {
   const requestOrigin = getRequestOrigin(req);
 
@@ -60,13 +87,12 @@ function getSafeClientOrigin(req: Request) {
     return requestOrigin;
   }
 
-  return config.CLIENT_URL;
+  return config.DEFAULT_CLIENT_URL;
 }
 
 function getSafeRedirectPath(path: unknown) {
   if (typeof path !== "string") return "/";
 
-  // Prevent open redirects
   if (!path.startsWith("/")) return "/";
   if (path.startsWith("//")) return "/";
 
@@ -83,6 +109,10 @@ function buildOAuthState(req: Request) {
   });
 }
 
+function buildCallbackUrl(req: Request, callbackPath: string) {
+  return `${getApiOrigin(req)}${callbackPath}`;
+}
+
 function handleOAuthRedirect(req: Request, res: Response) {
   const state = decodeOAuthState(req.query.state) as {
     redirectPath?: string;
@@ -92,7 +122,7 @@ function handleOAuthRedirect(req: Request, res: Response) {
   const clientOrigin =
     state?.clientOrigin && allowedClientOrigins.includes(state.clientOrigin)
       ? state.clientOrigin
-      : config.CLIENT_URL;
+      : config.DEFAULT_CLIENT_URL;
 
   const redirectPath = getSafeRedirectPath(state?.redirectPath);
   const redirectUrl = new URL(redirectPath, clientOrigin).toString();
@@ -101,50 +131,63 @@ function handleOAuthRedirect(req: Request, res: Response) {
 }
 
 // ---------- ADMIN GOOGLE LOGIN ----------
+
 AuthRouter.get(
   "/admin/google",
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate("google-admin", {
       scope: GOOGLE_SCOPE_PROFILE_FIELDS,
       state: buildOAuthState(req),
-    })(req, res, next);
+      callbackURL: buildCallbackUrl(req, "/auth/admin/google/callback"),
+    } as GoogleAuthOptions)(req, res, next);
   },
 );
 
 AuthRouter.get(
   "/admin/google/callback",
-  passport.authenticate("google-admin", {
-    failureRedirect: "/auth/failure",
-  }),
+  (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate("google-admin", {
+      failureRedirect: "/auth/failure",
+      callbackURL: buildCallbackUrl(req, "/auth/admin/google/callback"),
+    } as GoogleAuthOptions)(req, res, next);
+  },
   handleOAuthRedirect,
 );
 
 // ---------- CLIENT GOOGLE LOGIN ----------
+
 AuthRouter.get(
   "/client/google",
   (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate("google-client", {
       scope: GOOGLE_SCOPE_PROFILE_FIELDS,
       state: buildOAuthState(req),
-    })(req, res, next);
+      callbackURL: buildCallbackUrl(req, "/auth/client/google/callback"),
+    } as GoogleAuthOptions)(req, res, next);
   },
 );
 
 AuthRouter.get(
   "/client/google/callback",
-  passport.authenticate("google-client", {
-    failureRedirect: "/auth/failure",
-  }),
+  (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate("google-client", {
+      failureRedirect: "/auth/failure",
+      callbackURL: buildCallbackUrl(req, "/auth/client/google/callback"),
+    } as GoogleAuthOptions)(req, res, next);
+  },
   handleOAuthRedirect,
 );
 
 // ---------- ME ----------
+
 AuthRouter.get("/me", checkLoggedIn, HttpGetMe);
 
 // ---------- FAILURE ----------
+
 AuthRouter.get("/failure", HttpAuthFailure);
 
 // ---------- LOGOUT ----------
+
 AuthRouter.get("/logout", HttpLogout);
 
 export default AuthRouter;

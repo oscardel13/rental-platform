@@ -11,8 +11,10 @@ import { prisma } from "../../libs/prisma.js";
 export const passport = new Passport();
 
 export const config = {
-  API_URL: process.env.API_URL || "",
-  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
+  DEFAULT_CLIENT_URL:
+    process.env.DEFAULT_CLIENT_URL ||
+    process.env.CLIENT_URL ||
+    "http://localhost:3000",
 
   COOKIE_KEY_1: process.env.COOKIE_KEY_1,
   COOKIE_KEY_2: process.env.COOKIE_KEY_2,

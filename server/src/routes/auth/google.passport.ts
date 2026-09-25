@@ -76,13 +76,11 @@ function validateGoogleProfile(
 }
 
 const ADMIN_AUTH_OPTIONS = {
-  callbackURL: `${config.API_URL}/auth/admin/google/callback`,
   clientID: config.GOOGLE_CLIENT_ID || "",
   clientSecret: config.GOOGLE_CLIENT_SECRET || "",
 };
 
 const CLIENT_AUTH_OPTIONS = {
-  callbackURL: `${config.API_URL}/auth/client/google/callback`,
   clientID: config.GOOGLE_CLIENT_ID || "",
   clientSecret: config.GOOGLE_CLIENT_SECRET || "",
 };
