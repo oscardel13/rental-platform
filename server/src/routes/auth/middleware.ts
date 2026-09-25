@@ -8,7 +8,6 @@ export function checkLoggedIn(req: Request, res: Response, next: NextFunction) {
     typeof req.isAuthenticated === "function" &&
     req.isAuthenticated() &&
     req.user;
-  console.log("user:", req.user);
 
   if (!isLoggedIn) {
     return res.status(401).json({

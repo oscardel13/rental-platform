@@ -64,7 +64,6 @@ services:
     env_file:
       - ./server/.env
     environment:
-      # NODE_ENV: production
       PORT: 8000
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rental?schema=public
     ports:

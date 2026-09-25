@@ -58,7 +58,7 @@ app.use(
       maxAge: config.COOKIE_MAX_AGE,
       httpOnly: true,
       secure: isSecureEnv,
-      sameSite: isSecureEnv ? "none" : "lax",
+      sameSite: "lax",
     },
     store: new PgSession({
       pool: pgPool,
