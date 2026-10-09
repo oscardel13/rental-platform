@@ -20,7 +20,14 @@ export function getErrorStatusCode(error: unknown) {
 }
 
 export function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
+  // Only deliberate service errors (createServiceError, 4xx) are shown to
+  // the caller; anything else (Prisma, Stripe, bugs) gets the fallback.
+  if (
+    error instanceof Error &&
+    "statusCode" in error &&
+    typeof error.statusCode === "number" &&
+    error.statusCode < 500
+  ) {
     return error.message;
   }
 

@@ -19,7 +19,9 @@ services:
       retries: 5
 
   migrate:
-    image: oscarshub/rental-platform-server:latest
+    # CI sets IMAGE_TAG to the commit SHA so each deploy is pinned and
+    # rollback is `IMAGE_TAG=<old sha> docker compose ... up -d server`.
+    image: oscarshub/rental-platform-server:${IMAGE_TAG:-latest}
     container_name: rental-migrate
     env_file:
       - .env.prod
@@ -30,7 +32,9 @@ services:
     restart: "no"
 
   server:
-    image: oscarshub/rental-platform-server:latest
+    # CI sets IMAGE_TAG to the commit SHA so each deploy is pinned and
+    # rollback is `IMAGE_TAG=<old sha> docker compose ... up -d server`.
+    image: oscarshub/rental-platform-server:${IMAGE_TAG:-latest}
     container_name: rental-server
     restart: unless-stopped
     env_file:

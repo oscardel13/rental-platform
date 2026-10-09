@@ -1,0 +1,31 @@
+// One row per money movement on a booking: the checkout charge, later
+// balance charges, and refunds. Booking.paymentStatus stays the summary.
+model Payment {
+  id       String @id @default(cuid())
+  tenantId String
+
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  type     PaymentType              @default(CHARGE)
+  status   PaymentTransactionStatus @default(PENDING)
+  amount   Decimal                  @db.Decimal(10, 2)
+  currency String                   @default("usd")
+
+  stripePaymentIntentId String?
+  stripeChargeId        String?
+  stripeRefundId        String?  @unique
+  failureMessage        String?
+
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One CHARGE row per PaymentIntent (webhook retries upsert onto it).
+  @@unique([stripePaymentIntentId, type])
+  @@index([tenantId])
+  @@index([tenantId, bookingId])
+  @@index([tenantId, status])
+  @@index([bookingId])
+}

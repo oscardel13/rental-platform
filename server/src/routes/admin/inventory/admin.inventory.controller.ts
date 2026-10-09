@@ -10,6 +10,11 @@ import {
   getAddons,
 } from "../../../services/inventory/inventory.service.ts";
 
+import {
+  getErrorMessage,
+  getErrorStatusCode,
+} from "../../../utils/error.utils.ts";
+
 function getTenantId(req: Request) {
   const tenantId = req.user?.tenantId;
 
@@ -28,6 +33,16 @@ function getParamString(value: string | string[] | undefined) {
   return value ?? null;
 }
 
+// Service errors (400 validation, 409 duplicate serial) keep their message;
+// unexpected errors return the generic fallback.
+function sendError(res: Response, error: unknown, fallback: string) {
+  const statusCode = getErrorStatusCode(error);
+
+  res.status(statusCode).json({
+    error: statusCode < 500 ? getErrorMessage(error, fallback) : fallback,
+  });
+}
+
 export const HttpGetInventoryItems = async (req: Request, res: Response) => {
   try {
     const tenantId = getTenantId(req);
@@ -41,7 +56,7 @@ export const HttpGetInventoryItems = async (req: Request, res: Response) => {
     res.json(inventoryItems);
   } catch (error) {
     console.error("Failed to fetch inventory items:", error);
-    res.status(500).json({ error: "Failed to fetch inventory items" });
+    sendError(res, error, "Failed to fetch inventory items");
   }
 };
 
@@ -64,9 +79,7 @@ export const HttpGetAvailableInventoryItemsByDates = async (
     res.json(inventoryItems);
   } catch (error) {
     console.error("Failed to fetch available inventory items:", error);
-    res
-      .status(500)
-      .json({ error: "Failed to fetch available inventory items" });
+    sendError(res, error, "Failed to fetch available inventory items");
   }
 };
 
@@ -92,7 +105,7 @@ export const HttpGetInventoryItemById = async (req: Request, res: Response) => {
     res.json(inventoryItem);
   } catch (error) {
     console.error("Failed to fetch inventory item:", error);
-    res.status(500).json({ error: "Failed to fetch inventory item" });
+    sendError(res, error, "Failed to fetch inventory item");
   }
 };
 
@@ -109,7 +122,7 @@ export const HttpCreateInventoryItem = async (req: Request, res: Response) => {
     res.status(201).json(inventoryItem);
   } catch (error) {
     console.error("Failed to create inventory item:", error);
-    res.status(500).json({ error: "Failed to create inventory item" });
+    sendError(res, error, "Failed to create inventory item");
   }
 };
 
@@ -135,10 +148,11 @@ export const HttpUpdateInventoryItem = async (req: Request, res: Response) => {
     res.json(inventoryItem);
   } catch (error) {
     console.error("Failed to update inventory item:", error);
-    res.status(500).json({ error: "Failed to update inventory item" });
+    sendError(res, error, "Failed to update inventory item");
   }
 };
 
+// Soft delete: marks the item inactive so booking history keeps its link.
 export const HttpDeleteInventoryItem = async (req: Request, res: Response) => {
   try {
     const tenantId = getTenantId(req);
@@ -161,7 +175,7 @@ export const HttpDeleteInventoryItem = async (req: Request, res: Response) => {
     res.status(204).send();
   } catch (error) {
     console.error("Failed to delete inventory item:", error);
-    res.status(500).json({ error: "Failed to delete inventory item" });
+    sendError(res, error, "Failed to delete inventory item");
   }
 };
 
@@ -178,16 +192,6 @@ export const HttpGetAddons = async (req: Request, res: Response) => {
     res.json(addons);
   } catch (error) {
     console.error("Failed to fetch addons:", error);
-    res.status(500).json({ error: "Failed to fetch addons" });
+    sendError(res, error, "Failed to fetch addons");
   }
 };
-
-// Temporary backwards-compatible aliases.
-// Remove these after the frontend is fully moved from "dumpster" to "inventory".
-export const HttpGetDumpsters = HttpGetInventoryItems;
-export const HttpGetAvailableDumpstersByDates =
-  HttpGetAvailableInventoryItemsByDates;
-export const HttpGetDumpsterById = HttpGetInventoryItemById;
-export const HttpCreateDumpster = HttpCreateInventoryItem;
-export const HttpUpdateDumpster = HttpUpdateInventoryItem;
-export const HttpDeleteDumpster = HttpDeleteInventoryItem;

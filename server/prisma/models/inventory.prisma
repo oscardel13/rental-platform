@@ -26,6 +26,11 @@ model InventoryItem {
   basePrice     Decimal @default(0) @db.Decimal(10, 2)
   concretePrice Decimal @default(0) @db.Decimal(10, 2) //additional cost
 
+  // Rental terms: basePrice covers rentalDaysIncluded days; each extra day
+  // costs extraDayRate.
+  rentalDaysIncluded Int     @default(7)
+  extraDayRate       Decimal @default(0) @db.Decimal(10, 2)
+
   bookingItems BookingInventoryItem[]
 
   createdAt DateTime @default(now())

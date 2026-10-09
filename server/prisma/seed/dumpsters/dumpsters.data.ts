@@ -28,6 +28,8 @@ export const dumpstersData = [
 
     basePrice: 375,
     concretePrice: 150,
+    rentalDaysIncluded: 7,
+    extraDayRate: 25,
 
     notes: "Ready for dispatch. Solid emerald test.",
     isActive: true,
@@ -54,6 +56,8 @@ export const dumpstersData = [
 
     basePrice: 375,
     concretePrice: 150,
+    rentalDaysIncluded: 7,
+    extraDayRate: 25,
 
     notes: "Currently out on a job. Emerald and pink stripe test.",
     isActive: true,
@@ -80,6 +84,8 @@ export const dumpstersData = [
 
     basePrice: 375,
     concretePrice: 150,
+    rentalDaysIncluded: 7,
+    extraDayRate: 25,
 
     notes: "Available and ready. Emerald with orange dot test.",
     isActive: true,
@@ -106,6 +112,8 @@ export const dumpstersData = [
 
     basePrice: 450,
     concretePrice: 180,
+    rentalDaysIncluded: 7,
+    extraDayRate: 25,
 
     notes: "Scheduled for upcoming delivery. Solid blue test.",
     isActive: true,
@@ -132,6 +140,8 @@ export const dumpstersData = [
 
     basePrice: 450,
     concretePrice: 180,
+    rentalDaysIncluded: 7,
+    extraDayRate: 25,
 
     notes: "Ready for dispatch. Blue and rose split test.",
     isActive: true,

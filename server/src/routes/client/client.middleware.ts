@@ -80,6 +80,14 @@ export function requireTenantRole(...allowedRoles: TenantRole[]) {
       });
     }
 
+    // Signed in to tenant A but calling from tenant B's site/API.
+    if (req.tenant && req.tenant.id !== user.tenantId) {
+      return res.status(403).json({
+        error: "You're signed in to a different business account.",
+        code: "TENANT_MISMATCH",
+      });
+    }
+
     next();
   };
 }

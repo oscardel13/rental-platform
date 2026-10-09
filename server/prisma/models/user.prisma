@@ -34,6 +34,12 @@ model User {
   memberships TenantMembership[]
 
   clients Client[]
+
+  createdBookings Booking[] @relation("BookingCreatedBy")
+
+  authoredBookingNotes BookingNote[]     @relation("BookingNoteAuthor")
+  resolvedBookingNotes BookingNote[]     @relation("BookingNoteResolvedBy")
+  bookingNoteViews     BookingNoteView[]
   drivers Driver[]
   workers Worker[]
 

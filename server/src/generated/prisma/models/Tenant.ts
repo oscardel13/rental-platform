@@ -55,6 +55,7 @@ export type TenantMinAggregateOutputType = {
   longitude: runtime.Decimal | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
+  stripeAccountId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +79,7 @@ export type TenantMaxAggregateOutputType = {
   longitude: runtime.Decimal | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
+  stripeAccountId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -101,6 +103,7 @@ export type TenantCountAggregateOutputType = {
   longitude: number
   stripeCustomerId: number
   stripeSubscriptionId: number
+  stripeAccountId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -136,6 +139,7 @@ export type TenantMinAggregateInputType = {
   longitude?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
+  stripeAccountId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -159,6 +163,7 @@ export type TenantMaxAggregateInputType = {
   longitude?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
+  stripeAccountId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -182,6 +187,7 @@ export type TenantCountAggregateInputType = {
   longitude?: true
   stripeCustomerId?: true
   stripeSubscriptionId?: true
+  stripeAccountId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -292,6 +298,7 @@ export type TenantGroupByOutputType = {
   longitude: runtime.Decimal | null
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
+  stripeAccountId: string | null
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -338,8 +345,11 @@ export type TenantWhereInput = {
   longitude?: Prisma.DecimalNullableFilter<"Tenant"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   stripeSubscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  stripeAccountId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
+  settings?: Prisma.XOR<Prisma.TenantSettingsNullableScalarRelationFilter, Prisma.TenantSettingsWhereInput> | null
+  domains?: Prisma.TenantDomainListRelationFilter
   memberships?: Prisma.TenantMembershipListRelationFilter
   clients?: Prisma.ClientListRelationFilter
   drivers?: Prisma.DriverListRelationFilter
@@ -368,8 +378,11 @@ export type TenantOrderByWithRelationInput = {
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  settings?: Prisma.TenantSettingsOrderByWithRelationInput
+  domains?: Prisma.TenantDomainOrderByRelationAggregateInput
   memberships?: Prisma.TenantMembershipOrderByRelationAggregateInput
   clients?: Prisma.ClientOrderByRelationAggregateInput
   drivers?: Prisma.DriverOrderByRelationAggregateInput
@@ -382,6 +395,7 @@ export type TenantOrderByWithRelationInput = {
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
+  stripeAccountId?: string
   AND?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
@@ -403,6 +417,8 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   stripeSubscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
+  settings?: Prisma.XOR<Prisma.TenantSettingsNullableScalarRelationFilter, Prisma.TenantSettingsWhereInput> | null
+  domains?: Prisma.TenantDomainListRelationFilter
   memberships?: Prisma.TenantMembershipListRelationFilter
   clients?: Prisma.ClientListRelationFilter
   drivers?: Prisma.DriverListRelationFilter
@@ -410,7 +426,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   inventory?: Prisma.InventoryItemListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   addons?: Prisma.AddonListRelationFilter
-}, "id" | "slug">
+}, "id" | "slug" | "stripeAccountId">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -431,6 +447,7 @@ export type TenantOrderByWithAggregationInput = {
   longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -462,6 +479,7 @@ export type TenantScalarWhereWithAggregatesInput = {
   longitude?: Prisma.DecimalNullableWithAggregatesFilter<"Tenant"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  stripeAccountId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -485,8 +503,11 @@ export type TenantCreateInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
@@ -515,8 +536,11 @@ export type TenantUncheckedCreateInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
@@ -545,8 +569,11 @@ export type TenantUpdateInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
@@ -575,8 +602,11 @@ export type TenantUncheckedUpdateInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
@@ -605,6 +635,7 @@ export type TenantCreateManyInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -628,6 +659,7 @@ export type TenantUpdateManyMutationInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -651,6 +683,7 @@ export type TenantUncheckedUpdateManyInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -679,6 +712,7 @@ export type TenantCountOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
+  stripeAccountId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -707,6 +741,7 @@ export type TenantMaxOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
+  stripeAccountId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -730,6 +765,7 @@ export type TenantMinOrderByAggregateInput = {
   longitude?: Prisma.SortOrder
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
+  stripeAccountId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -827,6 +863,20 @@ export type EnumTenantStatusFieldUpdateOperationsInput = {
   set?: $Enums.TenantStatus
 }
 
+export type TenantCreateNestedOneWithoutDomainsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDomainsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutDomainsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutDomainsInput
+  upsert?: Prisma.TenantUpsertWithoutDomainsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutDomainsInput, Prisma.TenantUpdateWithoutDomainsInput>, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+}
+
 export type TenantCreateNestedOneWithoutMembershipsInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutMembershipsInput, Prisma.TenantUncheckedCreateWithoutMembershipsInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutMembershipsInput
@@ -839,6 +889,20 @@ export type TenantUpdateOneRequiredWithoutMembershipsNestedInput = {
   upsert?: Prisma.TenantUpsertWithoutMembershipsInput
   connect?: Prisma.TenantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutMembershipsInput, Prisma.TenantUpdateWithoutMembershipsInput>, Prisma.TenantUncheckedUpdateWithoutMembershipsInput>
+}
+
+export type TenantCreateNestedOneWithoutSettingsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSettingsInput, Prisma.TenantUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSettingsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSettingsInput, Prisma.TenantUncheckedCreateWithoutSettingsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSettingsInput
+  upsert?: Prisma.TenantUpsertWithoutSettingsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSettingsInput, Prisma.TenantUpdateWithoutSettingsInput>, Prisma.TenantUncheckedUpdateWithoutSettingsInput>
 }
 
 export type TenantCreateWithoutAddonsInput = {
@@ -860,8 +924,11 @@ export type TenantCreateWithoutAddonsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
@@ -889,8 +956,11 @@ export type TenantUncheckedCreateWithoutAddonsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
@@ -934,8 +1004,11 @@ export type TenantUpdateWithoutAddonsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
@@ -963,8 +1036,11 @@ export type TenantUncheckedUpdateWithoutAddonsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
@@ -992,8 +1068,11 @@ export type TenantCreateWithoutBookingsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
@@ -1021,8 +1100,11 @@ export type TenantUncheckedCreateWithoutBookingsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
@@ -1066,8 +1148,11 @@ export type TenantUpdateWithoutBookingsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
@@ -1095,8 +1180,11 @@ export type TenantUncheckedUpdateWithoutBookingsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
@@ -1124,8 +1212,11 @@ export type TenantCreateWithoutClientsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerCreateNestedManyWithoutTenantInput
@@ -1153,8 +1244,11 @@ export type TenantUncheckedCreateWithoutClientsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutTenantInput
@@ -1198,8 +1292,11 @@ export type TenantUpdateWithoutClientsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutTenantNestedInput
@@ -1227,8 +1324,11 @@ export type TenantUncheckedUpdateWithoutClientsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
@@ -1256,8 +1356,11 @@ export type TenantCreateWithoutDriversInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerCreateNestedManyWithoutTenantInput
@@ -1285,8 +1388,11 @@ export type TenantUncheckedCreateWithoutDriversInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutTenantInput
@@ -1330,8 +1436,11 @@ export type TenantUpdateWithoutDriversInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutTenantNestedInput
@@ -1359,8 +1468,11 @@ export type TenantUncheckedUpdateWithoutDriversInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
@@ -1388,8 +1500,11 @@ export type TenantCreateWithoutWorkersInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
@@ -1417,8 +1532,11 @@ export type TenantUncheckedCreateWithoutWorkersInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
@@ -1462,8 +1580,11 @@ export type TenantUpdateWithoutWorkersInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
@@ -1491,8 +1612,11 @@ export type TenantUncheckedUpdateWithoutWorkersInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
@@ -1520,8 +1644,11 @@ export type TenantCreateWithoutInventoryInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
@@ -1549,8 +1676,11 @@ export type TenantUncheckedCreateWithoutInventoryInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
@@ -1594,8 +1724,11 @@ export type TenantUpdateWithoutInventoryInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
@@ -1623,12 +1756,159 @@ export type TenantUncheckedUpdateWithoutInventoryInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutTenantNestedInput
+  addons?: Prisma.AddonUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutDomainsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  timezone?: string
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  address1?: string | null
+  address2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  country?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
+  clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutTenantInput
+  inventory?: Prisma.InventoryItemCreateNestedManyWithoutTenantInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutTenantInput
+  addons?: Prisma.AddonCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutDomainsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  timezone?: string
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  address1?: string | null
+  address2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  country?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutTenantInput
+  inventory?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutTenantInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutTenantInput
+  addons?: Prisma.AddonUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutDomainsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+}
+
+export type TenantUpsertWithoutDomainsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutDomainsInput, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutDomainsInput, Prisma.TenantUncheckedCreateWithoutDomainsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutDomainsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutDomainsInput, Prisma.TenantUncheckedUpdateWithoutDomainsInput>
+}
+
+export type TenantUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutTenantNestedInput
+  inventory?: Prisma.InventoryItemUpdateManyWithoutTenantNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutTenantNestedInput
+  addons?: Prisma.AddonUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
+  inventory?: Prisma.InventoryItemUncheckedUpdateManyWithoutTenantNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutTenantNestedInput
   addons?: Prisma.AddonUncheckedUpdateManyWithoutTenantNestedInput
 }
@@ -1652,8 +1932,11 @@ export type TenantCreateWithoutMembershipsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerCreateNestedManyWithoutTenantInput
@@ -1681,8 +1964,11 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: string | null
   stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  settings?: Prisma.TenantSettingsUncheckedCreateNestedOneWithoutTenantInput
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutTenantInput
@@ -1726,8 +2012,11 @@ export type TenantUpdateWithoutMembershipsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutTenantNestedInput
@@ -1755,8 +2044,155 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  settings?: Prisma.TenantSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
+  inventory?: Prisma.InventoryItemUncheckedUpdateManyWithoutTenantNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutTenantNestedInput
+  addons?: Prisma.AddonUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutSettingsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  timezone?: string
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  address1?: string | null
+  address2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  country?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domains?: Prisma.TenantDomainCreateNestedManyWithoutTenantInput
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutTenantInput
+  clients?: Prisma.ClientCreateNestedManyWithoutTenantInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutTenantInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutTenantInput
+  inventory?: Prisma.InventoryItemCreateNestedManyWithoutTenantInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutTenantInput
+  addons?: Prisma.AddonCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutSettingsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: $Enums.TenantStatus
+  timezone?: string
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  address1?: string | null
+  address2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  country?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  stripeAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domains?: Prisma.TenantDomainUncheckedCreateNestedManyWithoutTenantInput
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutTenantInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutTenantInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutTenantInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutTenantInput
+  inventory?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutTenantInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutTenantInput
+  addons?: Prisma.AddonUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutSettingsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSettingsInput, Prisma.TenantUncheckedCreateWithoutSettingsInput>
+}
+
+export type TenantUpsertWithoutSettingsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutSettingsInput, Prisma.TenantUncheckedUpdateWithoutSettingsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSettingsInput, Prisma.TenantUncheckedCreateWithoutSettingsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutSettingsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutSettingsInput, Prisma.TenantUncheckedUpdateWithoutSettingsInput>
+}
+
+export type TenantUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domains?: Prisma.TenantDomainUpdateManyWithoutTenantNestedInput
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutTenantNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutTenantNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutTenantNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutTenantNestedInput
+  inventory?: Prisma.InventoryItemUpdateManyWithoutTenantNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutTenantNestedInput
+  addons?: Prisma.AddonUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address1?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zip?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domains?: Prisma.TenantDomainUncheckedUpdateManyWithoutTenantNestedInput
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutTenantNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutTenantNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutTenantNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutTenantNestedInput
@@ -1771,6 +2207,7 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
  */
 
 export type TenantCountOutputType = {
+  domains: number
   memberships: number
   clients: number
   drivers: number
@@ -1781,6 +2218,7 @@ export type TenantCountOutputType = {
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  domains?: boolean | TenantCountOutputTypeCountDomainsArgs
   memberships?: boolean | TenantCountOutputTypeCountMembershipsArgs
   clients?: boolean | TenantCountOutputTypeCountClientsArgs
   drivers?: boolean | TenantCountOutputTypeCountDriversArgs
@@ -1798,6 +2236,13 @@ export type TenantCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exten
    * Select specific fields to fetch from the TenantCountOutputType
    */
   select?: Prisma.TenantCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountDomainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TenantDomainWhereInput
 }
 
 /**
@@ -1869,8 +2314,11 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   longitude?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
+  stripeAccountId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  settings?: boolean | Prisma.Tenant$settingsArgs<ExtArgs>
+  domains?: boolean | Prisma.Tenant$domainsArgs<ExtArgs>
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   clients?: boolean | Prisma.Tenant$clientsArgs<ExtArgs>
   drivers?: boolean | Prisma.Tenant$driversArgs<ExtArgs>
@@ -1900,6 +2348,7 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   longitude?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
+  stripeAccountId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1923,6 +2372,7 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   longitude?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
+  stripeAccountId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1946,12 +2396,15 @@ export type TenantSelectScalar = {
   longitude?: boolean
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
+  stripeAccountId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "timezone" | "phone" | "email" | "website" | "address1" | "address2" | "city" | "state" | "zip" | "country" | "latitude" | "longitude" | "stripeCustomerId" | "stripeSubscriptionId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "timezone" | "phone" | "email" | "website" | "address1" | "address2" | "city" | "state" | "zip" | "country" | "latitude" | "longitude" | "stripeCustomerId" | "stripeSubscriptionId" | "stripeAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  settings?: boolean | Prisma.Tenant$settingsArgs<ExtArgs>
+  domains?: boolean | Prisma.Tenant$domainsArgs<ExtArgs>
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   clients?: boolean | Prisma.Tenant$clientsArgs<ExtArgs>
   drivers?: boolean | Prisma.Tenant$driversArgs<ExtArgs>
@@ -1967,6 +2420,8 @@ export type TenantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Tenant"
   objects: {
+    settings: Prisma.$TenantSettingsPayload<ExtArgs> | null
+    domains: Prisma.$TenantDomainPayload<ExtArgs>[]
     memberships: Prisma.$TenantMembershipPayload<ExtArgs>[]
     clients: Prisma.$ClientPayload<ExtArgs>[]
     drivers: Prisma.$DriverPayload<ExtArgs>[]
@@ -1994,6 +2449,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     longitude: runtime.Decimal | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    stripeAccountId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -2390,6 +2846,8 @@ readonly fields: TenantFieldRefs;
  */
 export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  settings<T extends Prisma.Tenant$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$settingsArgs<ExtArgs>>): Prisma.Prisma__TenantSettingsClient<runtime.Types.Result.GetResult<Prisma.$TenantSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  domains<T extends Prisma.Tenant$domainsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantDomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberships<T extends Prisma.Tenant$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   clients<T extends Prisma.Tenant$clientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$clientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   drivers<T extends Prisma.Tenant$driversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$driversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DriverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2444,6 +2902,7 @@ export interface TenantFieldRefs {
   readonly longitude: Prisma.FieldRef<"Tenant", 'Decimal'>
   readonly stripeCustomerId: Prisma.FieldRef<"Tenant", 'String'>
   readonly stripeSubscriptionId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly stripeAccountId: Prisma.FieldRef<"Tenant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }
@@ -2836,6 +3295,49 @@ export type TenantDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Tenants to delete.
    */
   limit?: number
+}
+
+/**
+ * Tenant.settings
+ */
+export type Tenant$settingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TenantSettings
+   */
+  select?: Prisma.TenantSettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TenantSettings
+   */
+  omit?: Prisma.TenantSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantSettingsInclude<ExtArgs> | null
+  where?: Prisma.TenantSettingsWhereInput
+}
+
+/**
+ * Tenant.domains
+ */
+export type Tenant$domainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TenantDomain
+   */
+  select?: Prisma.TenantDomainSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TenantDomain
+   */
+  omit?: Prisma.TenantDomainOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantDomainInclude<ExtArgs> | null
+  where?: Prisma.TenantDomainWhereInput
+  orderBy?: Prisma.TenantDomainOrderByWithRelationInput | Prisma.TenantDomainOrderByWithRelationInput[]
+  cursor?: Prisma.TenantDomainWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TenantDomainScalarFieldEnum | Prisma.TenantDomainScalarFieldEnum[]
 }
 
 /**

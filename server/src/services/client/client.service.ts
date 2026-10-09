@@ -7,6 +7,16 @@ import {
   PlatformRole,
   TenantRole,
 } from "../../generated/prisma/client.ts";
+import {
+  bookingNoteInclude,
+  createCustomerBookingNote,
+  createCustomerChangeRequest,
+  createCustomerRescheduleRequest,
+  getBookingNoteCounts,
+  markBookingNotesRead,
+  normalizeBookingNote,
+  previewBookingReschedule,
+} from "../booking/booking-notes.service.ts";
 
 type RequestUser = {
   id: string;
@@ -181,7 +191,6 @@ function normalizeBookingListItem(booking: any) {
     dumpsterSize: primaryBookingItem?.itemSizeValueSnapshot
       ? Number(primaryBookingItem.itemSizeValueSnapshot)
       : null,
-    material: null,
 
     inventoryItemId: primaryBookingItem?.inventoryItemId ?? null,
     inventoryLabel: primaryBookingItem?.itemLabelSnapshot ?? null,
@@ -192,13 +201,31 @@ function normalizeBookingListItem(booking: any) {
 
     placement: booking.placement,
 
+    fulfillmentType: booking.fulfillmentType,
+    material: booking.material ?? null,
+
     basePrice: normalizeMoney(booking.basePrice),
     deliveryFee: normalizeMoney(booking.deliveryFee),
+    billableMiles: normalizeMoney(booking.billableMiles),
+    perMileRate: normalizeMoney(booking.perMileRate),
     mileageFee: normalizeMoney(booking.mileageFee),
+    priorityDeliveryFee: normalizeMoney(booking.priorityDeliveryFee),
+    extraDays: booking.extraDays ?? 0,
+    extraDayRate: normalizeMoney(booking.extraDayRate),
     extraDaysFee: normalizeMoney(booking.extraDaysFee),
+    materialFee: normalizeMoney(booking.materialFee),
     overageFee: normalizeMoney(booking.overageFee),
     addonsTotal: normalizeMoney(booking.addonsTotal),
+    discountAmount: normalizeMoney(booking.discountAmount),
+    discountReason: booking.discountReason ?? null,
+    subtotal: normalizeMoney(booking.subtotal),
+    taxRate: booking.taxRate == null ? 0 : Number(booking.taxRate),
+    taxAmount: normalizeMoney(booking.taxAmount),
     total: normalizeMoney(booking.total),
+
+    // Receipts are dated by payment, so the list needs these too.
+    paidAt: booking.paidAt,
+    completedAt: booking.completedAt,
 
     createdAt: booking.createdAt,
     updatedAt: booking.updatedAt,
@@ -245,6 +272,7 @@ function normalizeBookingDetail(booking: any) {
     deliveredAt: booking.deliveredAt,
     pickedUpAt: booking.pickedUpAt,
     cancelledAt: booking.cancelledAt,
+    cancellationReason: booking.cancellationReason ?? null,
     completedAt: booking.completedAt,
   };
 }
@@ -395,6 +423,7 @@ async function getClientOwnedBookingOrThrow(
         where: {
           visibility: getClientNoteVisibility(),
         },
+        include: bookingNoteInclude,
         orderBy: {
           createdAt: "desc",
         },
@@ -613,7 +642,18 @@ export async function getClientBookings(requestUser?: RequestUser | null) {
     ],
   });
 
-  return bookings.map(normalizeBookingListItem);
+  // Flags bookings with staff replies this customer hasn't read.
+  const noteCounts = await getBookingNoteCounts({
+    tenantId,
+    bookingIds: bookings.map((booking) => booking.id),
+    viewerUserId: requestUser?.id ?? null,
+    audience: "CUSTOMER",
+  });
+
+  return bookings.map((booking) => ({
+    ...normalizeBookingListItem(booking),
+    unreadNoteCount: noteCounts.get(booking.id)?.unreadNoteCount ?? 0,
+  }));
 }
 
 export async function getClientBookingById(
@@ -621,8 +661,78 @@ export async function getClientBookingById(
   requestUser?: RequestUser | null,
 ) {
   const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
+  const viewerUserId = requestUser?.id ?? null;
+  const detail = normalizeBookingDetail(booking);
+  const notes = (booking.notes ?? []).map((note: any) => {
+    const normalized = normalizeBookingNote(note, viewerUserId);
 
-  return normalizeBookingDetail(booking);
+    // Customers don't see which staff member read what.
+    return { ...normalized, views: [] };
+  });
+
+  return {
+    ...detail,
+    notes,
+    unreadNoteCount: notes.filter((note: any) => note.isUnread).length,
+  };
+}
+
+export async function markClientBookingNotesRead(
+  bookingId: string,
+  requestUser?: RequestUser | null,
+) {
+  const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
+
+  if (!requestUser?.id) return { marked: 0 };
+
+  const marked = await markBookingNotesRead({
+    tenantId: booking.tenantId,
+    bookingId: booking.id,
+    userId: requestUser.id,
+    customerOnly: true,
+  });
+
+  return { marked };
+}
+
+export async function previewClientBookingReschedule(
+  bookingId: string,
+  query: any,
+  requestUser?: RequestUser | null,
+) {
+  const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
+
+  return previewBookingReschedule({
+    tenantId: booking.tenantId,
+    bookingId: booking.id,
+    input: {
+      deliveryDate: query?.deliveryDate,
+      pickupDate: query?.pickupDate,
+      pickupDateUnknown:
+        query?.pickupDateUnknown === true || query?.pickupDateUnknown === "true",
+    },
+  });
+}
+
+export async function createClientBookingRescheduleRequest(
+  bookingId: string,
+  data: any,
+  requestUser?: RequestUser | null,
+) {
+  const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
+
+  return createCustomerRescheduleRequest({
+    tenantId: booking.tenantId,
+    bookingId: booking.id,
+    userId: requestUser?.id ?? null,
+    actorLabel: getActorLabel(requestUser),
+    input: {
+      deliveryDate: data?.deliveryDate,
+      pickupDate: data?.pickupDate,
+      pickupDateUnknown: data?.pickupDateUnknown,
+    },
+    message: data?.message,
+  });
 }
 
 export async function createClientBookingNote(
@@ -631,38 +741,18 @@ export async function createClientBookingNote(
   requestUser?: RequestUser | null,
 ) {
   const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
-  const body = String(data?.body || "").trim();
 
-  if (!body) {
-    throw createServiceError("Note body is required.", 400);
-  }
-
-  const note = await prisma.bookingNote.create({
-    data: {
-      tenantId: booking.tenantId,
-      bookingId: booking.id,
-      visibility: getClientNoteVisibility(),
-      body,
-    },
+  return createCustomerBookingNote({
+    tenantId: booking.tenantId,
+    bookingId: booking.id,
+    userId: requestUser?.id ?? null,
+    actorLabel: getActorLabel(requestUser),
+    title: data?.title,
+    body: data?.body,
   });
-
-  await prisma.bookingHistory.create({
-    data: {
-      tenantId: booking.tenantId,
-      bookingId: booking.id,
-      eventType: "CLIENT_NOTE_CREATED",
-      actorType: BookingActorType.CLIENT,
-      actorLabel: getActorLabel(requestUser),
-      summary: "Client added a note.",
-      metadata: {
-        noteId: note.id,
-      },
-    },
-  });
-
-  return note;
 }
 
+// Anything other than new dates (those use the reschedule request).
 export async function createClientBookingChangeRequest(
   bookingId: string,
   data: any,
@@ -670,64 +760,12 @@ export async function createClientBookingChangeRequest(
 ) {
   const booking = await getClientOwnedBookingOrThrow(bookingId, requestUser);
 
-  const type = String(data?.type || "GENERAL")
-    .trim()
-    .toUpperCase();
-  const message = String(data?.message || "").trim();
-
-  if (!message) {
-    throw createServiceError("Change request message is required.", 400);
-  }
-
-  const requestedDeliveryDate = data?.requestedDeliveryDate || null;
-  const requestedPickupDate = data?.requestedPickupDate || null;
-
-  const noteBody = [
-    `Change request: ${type}`,
-    message,
-    requestedDeliveryDate
-      ? `Requested delivery date: ${requestedDeliveryDate}`
-      : null,
-    requestedPickupDate
-      ? `Requested pickup date: ${requestedPickupDate}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
-
-  const note = await prisma.bookingNote.create({
-    data: {
-      tenantId: booking.tenantId,
-      bookingId: booking.id,
-      visibility: getClientNoteVisibility(),
-      body: noteBody,
-    },
+  return createCustomerChangeRequest({
+    tenantId: booking.tenantId,
+    bookingId: booking.id,
+    userId: requestUser?.id ?? null,
+    actorLabel: getActorLabel(requestUser),
+    type: data?.type,
+    message: data?.message,
   });
-
-  const history = await prisma.bookingHistory.create({
-    data: {
-      tenantId: booking.tenantId,
-      bookingId: booking.id,
-      eventType: "CLIENT_CHANGE_REQUESTED",
-      actorType: BookingActorType.CLIENT,
-      actorLabel: getActorLabel(requestUser),
-      summary: `Client requested a booking change: ${type}.`,
-      metadata: {
-        type,
-        message,
-        requestedDeliveryDate,
-        requestedPickupDate,
-        noteId: note.id,
-      },
-    },
-  });
-
-  return {
-    type,
-    message,
-    requestedDeliveryDate,
-    requestedPickupDate,
-    note,
-    history,
-  };
 }

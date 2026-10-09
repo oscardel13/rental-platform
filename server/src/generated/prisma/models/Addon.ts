@@ -42,6 +42,8 @@ export type AddonMinAggregateOutputType = {
   description: string | null
   price: runtime.Decimal | null
   isActive: boolean | null
+  priceType: $Enums.AddonPriceType | null
+  category: $Enums.InventoryCategory | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +56,8 @@ export type AddonMaxAggregateOutputType = {
   description: string | null
   price: runtime.Decimal | null
   isActive: boolean | null
+  priceType: $Enums.AddonPriceType | null
+  category: $Enums.InventoryCategory | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +70,8 @@ export type AddonCountAggregateOutputType = {
   description: number
   price: number
   isActive: number
+  priceType: number
+  category: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -88,6 +94,8 @@ export type AddonMinAggregateInputType = {
   description?: true
   price?: true
   isActive?: true
+  priceType?: true
+  category?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +108,8 @@ export type AddonMaxAggregateInputType = {
   description?: true
   price?: true
   isActive?: true
+  priceType?: true
+  category?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +122,8 @@ export type AddonCountAggregateInputType = {
   description?: true
   price?: true
   isActive?: true
+  priceType?: true
+  category?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -211,6 +223,8 @@ export type AddonGroupByOutputType = {
   description: string | null
   price: runtime.Decimal
   isActive: boolean
+  priceType: $Enums.AddonPriceType
+  category: $Enums.InventoryCategory | null
   createdAt: Date
   updatedAt: Date
   _count: AddonCountAggregateOutputType | null
@@ -246,6 +260,8 @@ export type AddonWhereInput = {
   description?: Prisma.StringNullableFilter<"Addon"> | string | null
   price?: Prisma.DecimalFilter<"Addon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Addon"> | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFilter<"Addon"> | $Enums.AddonPriceType
+  category?: Prisma.EnumInventoryCategoryNullableFilter<"Addon"> | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -260,6 +276,8 @@ export type AddonOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -278,6 +296,8 @@ export type AddonWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"Addon"> | string | null
   price?: Prisma.DecimalFilter<"Addon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Addon"> | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFilter<"Addon"> | $Enums.AddonPriceType
+  category?: Prisma.EnumInventoryCategoryNullableFilter<"Addon"> | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -292,6 +312,8 @@ export type AddonOrderByWithAggregationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AddonCountOrderByAggregateInput
@@ -312,6 +334,8 @@ export type AddonScalarWhereWithAggregatesInput = {
   description?: Prisma.StringNullableWithAggregatesFilter<"Addon"> | string | null
   price?: Prisma.DecimalWithAggregatesFilter<"Addon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolWithAggregatesFilter<"Addon"> | boolean
+  priceType?: Prisma.EnumAddonPriceTypeWithAggregatesFilter<"Addon"> | $Enums.AddonPriceType
+  category?: Prisma.EnumInventoryCategoryNullableWithAggregatesFilter<"Addon"> | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Addon"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Addon"> | Date | string
 }
@@ -323,6 +347,8 @@ export type AddonCreateInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAddonsInput
@@ -337,6 +363,8 @@ export type AddonUncheckedCreateInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingAddons?: Prisma.BookingAddonUncheckedCreateNestedManyWithoutAddonInput
@@ -349,6 +377,8 @@ export type AddonUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAddonsNestedInput
@@ -363,6 +393,8 @@ export type AddonUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingAddons?: Prisma.BookingAddonUncheckedUpdateManyWithoutAddonNestedInput
@@ -376,6 +408,8 @@ export type AddonCreateManyInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -387,6 +421,8 @@ export type AddonUpdateManyMutationInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -399,6 +435,8 @@ export type AddonUncheckedUpdateManyInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,6 +454,8 @@ export type AddonCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -432,6 +472,8 @@ export type AddonMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -444,6 +486,8 @@ export type AddonMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   price?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  priceType?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -485,6 +529,14 @@ export type DecimalFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type EnumAddonPriceTypeFieldUpdateOperationsInput = {
+  set?: $Enums.AddonPriceType
+}
+
+export type NullableEnumInventoryCategoryFieldUpdateOperationsInput = {
+  set?: $Enums.InventoryCategory | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -556,6 +608,8 @@ export type AddonCreateWithoutBookingAddonsInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAddonsInput
@@ -569,6 +623,8 @@ export type AddonUncheckedCreateWithoutBookingAddonsInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -596,6 +652,8 @@ export type AddonUpdateWithoutBookingAddonsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAddonsNestedInput
@@ -609,6 +667,8 @@ export type AddonUncheckedUpdateWithoutBookingAddonsInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -620,6 +680,8 @@ export type AddonCreateWithoutTenantInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingAddons?: Prisma.BookingAddonCreateNestedManyWithoutAddonInput
@@ -632,6 +694,8 @@ export type AddonUncheckedCreateWithoutTenantInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingAddons?: Prisma.BookingAddonUncheckedCreateNestedManyWithoutAddonInput
@@ -674,6 +738,8 @@ export type AddonScalarWhereInput = {
   description?: Prisma.StringNullableFilter<"Addon"> | string | null
   price?: Prisma.DecimalFilter<"Addon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFilter<"Addon"> | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFilter<"Addon"> | $Enums.AddonPriceType
+  category?: Prisma.EnumInventoryCategoryNullableFilter<"Addon"> | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Addon"> | Date | string
 }
@@ -685,6 +751,8 @@ export type AddonCreateManyTenantInput = {
   description?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: boolean
+  priceType?: $Enums.AddonPriceType
+  category?: $Enums.InventoryCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -696,6 +764,8 @@ export type AddonUpdateWithoutTenantInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingAddons?: Prisma.BookingAddonUpdateManyWithoutAddonNestedInput
@@ -708,6 +778,8 @@ export type AddonUncheckedUpdateWithoutTenantInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingAddons?: Prisma.BookingAddonUncheckedUpdateManyWithoutAddonNestedInput
@@ -720,6 +792,8 @@ export type AddonUncheckedUpdateManyWithoutTenantInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  priceType?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
+  category?: Prisma.NullableEnumInventoryCategoryFieldUpdateOperationsInput | $Enums.InventoryCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -763,6 +837,8 @@ export type AddonSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   description?: boolean
   price?: boolean
   isActive?: boolean
+  priceType?: boolean
+  category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -778,6 +854,8 @@ export type AddonSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   price?: boolean
   isActive?: boolean
+  priceType?: boolean
+  category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -791,6 +869,8 @@ export type AddonSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   description?: boolean
   price?: boolean
   isActive?: boolean
+  priceType?: boolean
+  category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -804,11 +884,13 @@ export type AddonSelectScalar = {
   description?: boolean
   price?: boolean
   isActive?: boolean
+  priceType?: boolean
+  category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AddonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "code" | "name" | "description" | "price" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["addon"]>
+export type AddonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "code" | "name" | "description" | "price" | "isActive" | "priceType" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["addon"]>
 export type AddonInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   bookingAddons?: boolean | Prisma.Addon$bookingAddonsArgs<ExtArgs>
@@ -835,6 +917,8 @@ export type $AddonPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     description: string | null
     price: runtime.Decimal
     isActive: boolean
+    priceType: $Enums.AddonPriceType
+    category: $Enums.InventoryCategory | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["addon"]>
@@ -1269,6 +1353,8 @@ export interface AddonFieldRefs {
   readonly description: Prisma.FieldRef<"Addon", 'String'>
   readonly price: Prisma.FieldRef<"Addon", 'Decimal'>
   readonly isActive: Prisma.FieldRef<"Addon", 'Boolean'>
+  readonly priceType: Prisma.FieldRef<"Addon", 'AddonPriceType'>
+  readonly category: Prisma.FieldRef<"Addon", 'InventoryCategory'>
   readonly createdAt: Prisma.FieldRef<"Addon", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Addon", 'DateTime'>
 }

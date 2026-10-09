@@ -1,6 +1,11 @@
 import { NoteVisibility, Prisma } from "../../generated/prisma/client.ts";
 import { normalizeMoney } from "../../utils/money.utils.ts";
 
+import {
+  bookingNoteInclude,
+  normalizeBookingNote,
+} from "./booking-notes.service.ts";
+
 export const bookingListInclude = {
   client: true,
   inventoryItems: {
@@ -28,6 +33,7 @@ export const bookingDetailInclude = {
     },
   },
   notes: {
+    include: bookingNoteInclude,
     orderBy: {
       createdAt: "desc",
     },
@@ -130,12 +136,26 @@ export function normalizeBookingListItem(booking: any) {
 
     placement: booking.placement,
 
+    fulfillmentType: booking.fulfillmentType,
+    material: booking.material ?? null,
+
     basePrice: normalizeMoney(booking.basePrice),
     deliveryFee: normalizeMoney(booking.deliveryFee),
+    billableMiles: normalizeMoney(booking.billableMiles),
+    perMileRate: normalizeMoney(booking.perMileRate),
     mileageFee: normalizeMoney(booking.mileageFee),
+    priorityDeliveryFee: normalizeMoney(booking.priorityDeliveryFee),
+    extraDays: booking.extraDays ?? 0,
+    extraDayRate: normalizeMoney(booking.extraDayRate),
     extraDaysFee: normalizeMoney(booking.extraDaysFee),
+    materialFee: normalizeMoney(booking.materialFee),
     overageFee: normalizeMoney(booking.overageFee),
     addonsTotal: normalizeMoney(booking.addonsTotal),
+    discountAmount: normalizeMoney(booking.discountAmount),
+    discountReason: booking.discountReason ?? null,
+    subtotal: normalizeMoney(booking.subtotal),
+    taxRate: booking.taxRate == null ? 0 : Number(booking.taxRate),
+    taxAmount: normalizeMoney(booking.taxAmount),
     total: normalizeMoney(booking.total),
 
     inventoryItem,
@@ -146,7 +166,6 @@ export function normalizeBookingListItem(booking: any) {
     dumpsterId: inventoryItem?.id ?? null,
     dumpsterLabel: inventoryItem?.label ?? null,
     dumpsterSize: inventoryItem?.sizeValue ?? null,
-    material: null,
 
     addons: booking.addons ?? [],
 
@@ -155,11 +174,21 @@ export function normalizeBookingListItem(booking: any) {
   };
 }
 
-export function normalizeBookingDetail(booking: any) {
+// viewerUserId marks which notes are unread for the person asking.
+export function normalizeBookingDetail(
+  booking: any,
+  viewerUserId?: string | null,
+) {
+  const notes = (booking.notes ?? []).map((note: any) =>
+    normalizeBookingNote(note, viewerUserId),
+  );
+
   return {
     ...normalizeBookingListItem(booking),
 
     rentalDaysIncluded: booking.rentalDaysIncluded,
+    source: booking.source,
+    createdByUserId: booking.createdByUserId ?? null,
 
     instructions: booking.instructions,
     customerNotes: booking.customerNotes,
@@ -181,11 +210,17 @@ export function normalizeBookingDetail(booking: any) {
     deliveredAt: booking.deliveredAt,
     pickedUpAt: booking.pickedUpAt,
     cancelledAt: booking.cancelledAt,
+    cancellationReason: booking.cancellationReason ?? null,
     completedAt: booking.completedAt,
 
     client: booking.client,
-    notes: booking.notes ?? [],
+    notes,
     history: booking.history ?? [],
+
+    unreadNoteCount: notes.filter((note: any) => note.isUnread).length,
+    openRequestCount: notes.filter(
+      (note: any) => note.requestStatus === "OPEN",
+    ).length,
   };
 }
 

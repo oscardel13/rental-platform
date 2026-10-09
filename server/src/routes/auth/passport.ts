@@ -7,6 +7,10 @@ import {
   TenantRole,
 } from "../../generated/prisma/client.js";
 import { prisma } from "../../libs/prisma.js";
+import {
+  getUsableTenantById,
+  isTenantUsable,
+} from "../../services/tenant/tenant-domain.service.ts";
 
 export const passport = new Passport();
 
@@ -48,12 +52,12 @@ export type AuthenticatedUser = {
   worker?: unknown | null;
 };
 
-const DEFAULT_TENANT_SLUG =
-  process.env.DEFAULT_TENANT_SLUG || "iron-peak-services";
 
 type Provider = "google" | "meta" | "x";
 
 type ProviderInput = {
+  // The tenant whose site started the login (from the verified OAuth state).
+  tenantId: string;
   provider: Provider;
   providerId: string;
   email?: string | null;
@@ -129,15 +133,12 @@ function getStrongestTenantRole(
     : requestedRole;
 }
 
-async function getDefaultTenant() {
-  const tenant = await prisma.tenant.findUnique({
-    where: {
-      slug: DEFAULT_TENANT_SLUG,
-    },
-  });
+// Login is always for one tenant: the one whose site started it.
+async function getLoginTenant(tenantId: string) {
+  const tenant = await getUsableTenantById(tenantId);
 
   if (!tenant) {
-    throw new Error(`Tenant "${DEFAULT_TENANT_SLUG}" was not found.`);
+    throw new Error("This business account isn't active.");
   }
 
   return tenant;
@@ -331,6 +332,7 @@ async function updateTenantMembershipRole({
 }
 
 export async function findOrCreateAdminFromProvider({
+  tenantId,
   provider,
   providerId,
   email,
@@ -349,7 +351,7 @@ export async function findOrCreateAdminFromProvider({
   }
 
   const providerType = providerMap[provider];
-  const tenant = await getDefaultTenant();
+  const tenant = await getLoginTenant(tenantId);
 
   let user = await findUserByProviderOrEmail({
     providerType,
@@ -487,6 +489,7 @@ export async function findOrCreateAdminFromProvider({
 }
 
 export async function findOrCreateClientFromProvider({
+  tenantId,
   provider,
   providerId,
   email,
@@ -505,7 +508,7 @@ export async function findOrCreateClientFromProvider({
   }
 
   const providerType = providerMap[provider];
-  const tenant = await getDefaultTenant();
+  const tenant = await getLoginTenant(tenantId);
 
   let user = await findUserByProviderOrEmail({
     providerType,
@@ -705,6 +708,11 @@ passport.deserializeUser(async (sessionUser: any, done) => {
         },
       });
 
+      // A suspended/canceled tenant loses access on the next request.
+      if (membership && !isTenantUsable(membership.tenant.status)) {
+        membership = null;
+      }
+
       tenant = membership?.tenant ?? null;
 
       client = await prisma.client.findUnique({
@@ -751,15 +759,18 @@ passport.deserializeUser(async (sessionUser: any, done) => {
       });
     }
 
+    // Access comes from the database on every request, never from what was
+    // saved in the session at login. A deactivated or deleted membership
+    // loses tenant access immediately instead of when the cookie expires.
     done(null, {
       ...user,
-      tenantId: tenant?.id ?? tenantId ?? null,
-      tenantSlug: tenant?.slug ?? sessionUser.tenantSlug ?? null,
-      role: membership?.role ?? sessionUser.role ?? null,
-      clientId: client?.id ?? sessionUser.clientId ?? null,
-      client,
-      driver,
-      worker,
+      tenantId: membership ? (tenant?.id ?? null) : null,
+      tenantSlug: membership ? (tenant?.slug ?? null) : null,
+      role: membership?.role ?? null,
+      clientId: membership ? (client?.id ?? null) : null,
+      client: membership ? client : null,
+      driver: membership ? driver : null,
+      worker: membership ? worker : null,
     });
   } catch (err) {
     done(err);

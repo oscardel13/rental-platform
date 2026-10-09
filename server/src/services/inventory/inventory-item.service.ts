@@ -6,7 +6,7 @@ import {
 import { prisma } from "../../libs/prisma.ts";
 
 import { createServiceError } from "../../utils/error.utils.ts";
-import { getQueryString } from "../../utils/query.utils.ts";
+import { getQueryBoolean, getQueryString } from "../../utils/query.utils.ts";
 import {
   addUtcDays,
   parseDateOnly,
@@ -15,21 +15,37 @@ import {
 
 import {
   normalizeInventoryCreateData,
-  normalizeInventoryItemForOldFrontend,
-  normalizeInventoryItemsForOldFrontend,
+  normalizeInventoryItemResponse,
+  normalizeInventoryItemsResponse,
   normalizeInventoryUpdateData,
+  resolveColorCombo,
 } from "./inventory-normalizer.service.ts";
 
 import { bookingOverlapsDateRange } from "./inventory-availability.service.ts";
 
+// Serial numbers are unique per tenant (@@unique([tenantId, serialNumber])).
+function rethrowDuplicateSerialNumber(error: unknown): never {
+  if ((error as { code?: string } | null)?.code === "P2002") {
+    throw createServiceError(
+      "Another inventory item already uses this serial number.",
+      409,
+    );
+  }
+
+  throw error;
+}
+
+// ?includeInactive=true is for the admin inventory page, so items marked
+// inactive can still be found and reactivated.
 export const getInventoryItems = async (tenantId: string, query: any) => {
   const status = getQueryString(query.status);
   const category = getQueryString(query.category);
+  const includeInactive = getQueryBoolean(query.includeInactive);
 
   const items = await prisma.inventoryItem.findMany({
     where: {
       tenantId,
-      isActive: true,
+      ...(includeInactive ? {} : { isActive: true }),
       ...(status ? { status: status as InventoryStatus } : {}),
       ...(category ? { category: category as InventoryCategory } : {}),
     },
@@ -43,7 +59,7 @@ export const getInventoryItems = async (tenantId: string, query: any) => {
     ],
   });
 
-  return normalizeInventoryItemsForOldFrontend(items);
+  return normalizeInventoryItemsResponse(items);
 };
 
 export const getInventoryItemsFilteredByDates = async (
@@ -127,7 +143,7 @@ export const getInventoryItemsFilteredByDates = async (
     });
   });
 
-  return normalizeInventoryItemsForOldFrontend(availableItems);
+  return normalizeInventoryItemsResponse(availableItems);
 };
 
 export const getInventoryItemById = async (tenantId: string, id: string) => {
@@ -138,19 +154,17 @@ export const getInventoryItemById = async (tenantId: string, id: string) => {
     },
   });
 
-  return item ? normalizeInventoryItemForOldFrontend(item) : null;
+  return item ? normalizeInventoryItemResponse(item) : null;
 };
 
 export const createInventoryItem = async (tenantId: string, data: any) => {
-  if (!data.label) {
-    throw createServiceError("Inventory item label is required.", 400);
-  }
+  const item = await prisma.inventoryItem
+    .create({
+      data: normalizeInventoryCreateData(tenantId, data ?? {}),
+    })
+    .catch(rethrowDuplicateSerialNumber);
 
-  const item = await prisma.inventoryItem.create({
-    data: normalizeInventoryCreateData(tenantId, data),
-  });
-
-  return normalizeInventoryItemForOldFrontend(item);
+  return normalizeInventoryItemResponse(item);
 };
 
 export const updateInventoryItem = async (
@@ -169,14 +183,37 @@ export const updateInventoryItem = async (
     return null;
   }
 
-  const item = await prisma.inventoryItem.update({
-    where: {
-      id,
-    },
-    data: normalizeInventoryUpdateData(data),
-  });
+  const updateData = normalizeInventoryUpdateData(data ?? {});
 
-  return normalizeInventoryItemForOldFrontend(item);
+  // Re-check the color combination against the item's current colors.
+  if (
+    "primaryColor" in updateData ||
+    "secondaryColor" in updateData ||
+    "colorPattern" in updateData
+  ) {
+    Object.assign(
+      updateData,
+      resolveColorCombo({
+        primaryColor: updateData.primaryColor ?? existingItem.primaryColor,
+        secondaryColor:
+          "secondaryColor" in updateData
+            ? (updateData.secondaryColor ?? null)
+            : existingItem.secondaryColor,
+        colorPattern: updateData.colorPattern ?? existingItem.colorPattern,
+      }),
+    );
+  }
+
+  const item = await prisma.inventoryItem
+    .update({
+      where: {
+        id,
+      },
+      data: updateData,
+    })
+    .catch(rethrowDuplicateSerialNumber);
+
+  return normalizeInventoryItemResponse(item);
 };
 
 export const deleteInventoryItem = async (tenantId: string, id: string) => {
@@ -224,7 +261,7 @@ export const lockInventoryItem = async (tenantId: string, id: string) => {
     },
   });
 
-  return normalizeInventoryItemForOldFrontend(item);
+  return normalizeInventoryItemResponse(item);
 };
 
 export const unlockInventoryItem = async (tenantId: string, id: string) => {
@@ -248,5 +285,5 @@ export const unlockInventoryItem = async (tenantId: string, id: string) => {
     },
   });
 
-  return normalizeInventoryItemForOldFrontend(item);
+  return normalizeInventoryItemResponse(item);
 };

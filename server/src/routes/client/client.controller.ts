@@ -2,6 +2,9 @@
 import type { Request, Response } from "express";
 import {
   createClientBookingChangeRequest,
+  createClientBookingRescheduleRequest,
+  markClientBookingNotesRead,
+  previewClientBookingReschedule,
   createClientBookingNote,
   getClientBookingById,
   getClientBookings,
@@ -21,7 +24,14 @@ function getHttpErrorStatus(error: unknown) {
 }
 
 function getHttpErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
+  // Only deliberate service errors (createServiceError, 4xx) are shown to
+  // the caller; anything else (Prisma, Stripe, bugs) gets the fallback.
+  if (
+    error instanceof Error &&
+    "statusCode" in error &&
+    typeof error.statusCode === "number" &&
+    error.statusCode < 500
+  ) {
     return error.message;
   }
 
@@ -162,27 +172,74 @@ export async function HttpCreateClientBookingChangeRequest(
   }
 }
 
-// GET /client/:id
-export async function HttpGetClientById(req: Request, res: Response) {
+function sendClientError(res: Response, error: unknown, fallback: string) {
+  res.status(getHttpErrorStatus(error)).json({
+    error: getHttpErrorMessage(error, fallback),
+  });
+}
+
+// POST /client/bookings/:id/notes/read
+export async function HttpMarkClientBookingNotesRead(
+  req: Request,
+  res: Response,
+) {
   try {
     const id = getRouteId(req);
 
     if (!id) {
-      return res.status(400).json({
-        error: "Client ID is required.",
-      });
+      return res.status(400).json({ error: "Booking ID is required." });
     }
 
-    res.status(200).json({
-      message: "Admin client detail route working.",
-      clientId: id,
-      client: null,
-    });
+    res.json(await markClientBookingNotesRead(id, getRequestUser(req)));
   } catch (error) {
-    console.error("Error getting client by id:", error);
-
-    res.status(getHttpErrorStatus(error)).json({
-      error: getHttpErrorMessage(error, "Failed to get client."),
-    });
+    console.error("Error marking client booking notes read:", error);
+    sendClientError(res, error, "Failed to mark notes read.");
   }
 }
+
+// GET /client/bookings/:id/reschedule/preview?deliveryDate&pickupDate&pickupDateUnknown
+export async function HttpPreviewClientBookingReschedule(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const id = getRouteId(req);
+
+    if (!id) {
+      return res.status(400).json({ error: "Booking ID is required." });
+    }
+
+    res.json(
+      await previewClientBookingReschedule(id, req.query, getRequestUser(req)),
+    );
+  } catch (error) {
+    sendClientError(res, error, "Failed to check those dates.");
+  }
+}
+
+// POST /client/bookings/:id/reschedule
+export async function HttpCreateClientBookingRescheduleRequest(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const id = getRouteId(req);
+
+    if (!id) {
+      return res.status(400).json({ error: "Booking ID is required." });
+    }
+
+    const result = await createClientBookingRescheduleRequest(
+      id,
+      req.body,
+      getRequestUser(req),
+    );
+
+    res.status(201).json(result);
+  } catch (error) {
+    console.error("Error creating reschedule request:", error);
+    sendClientError(res, error, "Failed to send reschedule request.");
+  }
+}
+
+// GET /client/:id

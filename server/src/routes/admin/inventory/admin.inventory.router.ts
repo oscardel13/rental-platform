@@ -29,7 +29,7 @@ const InventoryRouter = express.Router();
  * - DRIVER
  * - WORKER
  *
- * Write routes:
+ * Write routes (create, update, deactivate) — requireAdmin:
  * - OWNER
  * - ADMIN
  *
@@ -38,6 +38,7 @@ const InventoryRouter = express.Router();
  */
 
 // Inventory read routes
+// GET /items?includeInactive=true&status=AVAILABLE&category=DUMPSTER
 InventoryRouter.get("/items", requireTenantDashboard, HttpGetInventoryItems);
 
 InventoryRouter.get(
@@ -57,37 +58,10 @@ InventoryRouter.post("/items", requireAdmin, HttpCreateInventoryItem);
 
 InventoryRouter.put("/items/:id", requireAdmin, HttpUpdateInventoryItem);
 
+// Soft delete: sets isActive = false.
 InventoryRouter.delete("/items/:id", requireAdmin, HttpDeleteInventoryItem);
 
 // Addon read route
 InventoryRouter.get("/addons", requireTenantDashboard, HttpGetAddons);
-
-/**
- * Temporary old dumpster URLs.
- * Keep these only while the frontend still calls /dumpsters.
- */
-InventoryRouter.get(
-  "/dumpsters",
-  requireTenantDashboard,
-  HttpGetInventoryItems,
-);
-
-InventoryRouter.get(
-  "/dumpsters/available",
-  requireTenantDashboard,
-  HttpGetAvailableInventoryItemsByDates,
-);
-
-InventoryRouter.get(
-  "/dumpsters/:id",
-  requireTenantDashboard,
-  HttpGetInventoryItemById,
-);
-
-InventoryRouter.post("/dumpsters", requireAdmin, HttpCreateInventoryItem);
-
-InventoryRouter.put("/dumpsters/:id", requireAdmin, HttpUpdateInventoryItem);
-
-InventoryRouter.delete("/dumpsters/:id", requireAdmin, HttpDeleteInventoryItem);
 
 export default InventoryRouter;

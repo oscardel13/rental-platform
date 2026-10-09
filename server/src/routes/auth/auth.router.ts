@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { randomBytes, timingSafeEqual } from "node:crypto";
 import { Router } from "express";
 import type { Request, Response, NextFunction } from "express";
 
@@ -10,6 +11,13 @@ import {
   GOOGLE_SCOPE_PROFILE_FIELDS,
 } from "./google.passport.js";
 import { HttpAuthFailure, HttpGetMe, HttpLogout } from "./auth.controller.js";
+import {
+  isLocalHostname,
+  isTenantUsable,
+  normalizeHostname,
+  resolveTenantByHostname,
+  resolveTenantForOrigin,
+} from "../../services/tenant/tenant-domain.service.ts";
 
 type GoogleAuthOptions = {
   scope?: string[];
@@ -22,15 +30,15 @@ const AuthRouter = Router();
 
 configureGooglePassport();
 
-const allowedClientOrigins =
-  process.env.ORIGIN_WHITELIST?.split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean) || [];
-
+// Optional: a shared login host that isn't a tenant domain
+// (e.g. https://auth.yourplatform.com). Tenant API hosts come from
+// TenantDomain, so they need no env entry.
 const allowedApiOrigins =
   process.env.API_ORIGIN_WHITELIST?.split(",")
     .map((origin) => origin.trim())
     .filter(Boolean) || [];
+
+const isProduction = process.env.NODE_ENV === "production";
 
 function encodeOAuthState(state: object) {
   return Buffer.from(JSON.stringify(state)).toString("base64url");
@@ -63,7 +71,10 @@ function getRequestOrigin(req: Request) {
   return null;
 }
 
-function getApiOrigin(req: Request) {
+// The callback URL is built from the host the login was started on, so
+// that host must be ours: a verified tenant domain, the shared login host,
+// or localhost in development.
+async function getApiOrigin(req: Request) {
   const protocol = req.protocol;
   const host = req.get("host");
 
@@ -72,22 +83,28 @@ function getApiOrigin(req: Request) {
   }
 
   const apiOrigin = `${protocol}://${host}`;
+  const hostname = normalizeHostname(host);
 
-  if (allowedApiOrigins.length && !allowedApiOrigins.includes(apiOrigin)) {
+  const allowed =
+    allowedApiOrigins.includes(apiOrigin) ||
+    (!isProduction && isLocalHostname(hostname)) ||
+    Boolean(await resolveTenantByHostname(hostname));
+
+  if (!allowed) {
     throw new Error(`API origin is not allowed: ${apiOrigin}`);
   }
 
   return apiOrigin;
 }
 
-function getSafeClientOrigin(req: Request) {
-  const requestOrigin = getRequestOrigin(req);
+// The site that sent the user to log in, if it belongs to an active tenant.
+async function getLoginSite(req: Request) {
+  const origin = getRequestOrigin(req);
+  const tenant = await resolveTenantForOrigin(origin);
 
-  if (requestOrigin && allowedClientOrigins.includes(requestOrigin)) {
-    return requestOrigin;
-  }
+  if (!origin || !tenant) return null;
 
-  return config.DEFAULT_CLIENT_URL;
+  return { origin: new URL(origin).origin, tenant };
 }
 
 function getSafeRedirectPath(path: unknown) {
@@ -99,28 +116,67 @@ function getSafeRedirectPath(path: unknown) {
   return path;
 }
 
-function buildOAuthState(req: Request) {
+/**
+ * The OAuth state carries where to send the user after login plus a random
+ * nonce that is also saved in their session. The callback only accepts a
+ * state whose nonce matches the browser's session, so an attacker can't
+ * finish a login on someone else's browser (login CSRF). The tenant is kept
+ * in the session for the verify callback.
+ */
+function buildOAuthState(
+  req: Request,
+  site: { origin: string; tenant: { id: string } },
+) {
   const redirectPath = getSafeRedirectPath(req.query.path);
-  const clientOrigin = getSafeClientOrigin(req);
+  const nonce = randomBytes(16).toString("hex");
+
+  (req.session as any).oauthNonce = nonce;
+  (req.session as any).oauthTenantId = site.tenant.id;
 
   return encodeOAuthState({
     redirectPath,
-    clientOrigin,
+    clientOrigin: site.origin,
+    nonce,
   });
 }
 
-function buildCallbackUrl(req: Request, callbackPath: string) {
-  return `${getApiOrigin(req)}${callbackPath}`;
+function nonceMatches(expected: unknown, received: unknown) {
+  if (typeof expected !== "string" || typeof received !== "string") {
+    return false;
+  }
+
+  const a = Buffer.from(expected);
+  const b = Buffer.from(received);
+
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
-function handleOAuthRedirect(req: Request, res: Response) {
+function verifyOAuthState(req: Request, res: Response, next: NextFunction) {
+  const state = decodeOAuthState(req.query.state) as { nonce?: string } | null;
+  const expected = (req.session as any)?.oauthNonce;
+
+  // One use only.
+  if (req.session) delete (req.session as any).oauthNonce;
+
+  if (!nonceMatches(expected, state?.nonce)) {
+    return res.redirect("/auth/failure");
+  }
+
+  next();
+}
+
+async function handleOAuthRedirect(req: Request, res: Response) {
   const state = decodeOAuthState(req.query.state) as {
     redirectPath?: string;
     clientOrigin?: string;
   } | null;
 
+  // Only send users back to a site of the tenant they just signed in to.
+  const tenant = await resolveTenantForOrigin(state?.clientOrigin).catch(
+    () => null,
+  );
   const clientOrigin =
-    state?.clientOrigin && allowedClientOrigins.includes(state.clientOrigin)
+    state?.clientOrigin && tenant && tenant.id === req.user?.tenantId
       ? state.clientOrigin
       : config.DEFAULT_CLIENT_URL;
 
@@ -130,27 +186,58 @@ function handleOAuthRedirect(req: Request, res: Response) {
   res.redirect(redirectUrl);
 }
 
+/**
+ * Starts a Google login for the tenant whose site sent the user here.
+ * Unknown sites and inactive tenants are refused before going to Google.
+ */
+function startGoogleLogin(strategy: string, callbackPath: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const site = await getLoginSite(req);
+
+      if (!site || !isTenantUsable(site.tenant.status)) {
+        return res.redirect("/auth/failure");
+      }
+
+      const options: GoogleAuthOptions = {
+        scope: GOOGLE_SCOPE_PROFILE_FIELDS,
+        state: buildOAuthState(req, site),
+        callbackURL: `${await getApiOrigin(req)}${callbackPath}`,
+      };
+
+      passport.authenticate(strategy, options)(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+function finishGoogleLogin(strategy: string, callbackPath: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const options: GoogleAuthOptions = {
+        failureRedirect: "/auth/failure",
+        callbackURL: `${await getApiOrigin(req)}${callbackPath}`,
+      };
+
+      passport.authenticate(strategy, options)(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
 // ---------- ADMIN GOOGLE LOGIN ----------
 
 AuthRouter.get(
   "/admin/google",
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("google-admin", {
-      scope: GOOGLE_SCOPE_PROFILE_FIELDS,
-      state: buildOAuthState(req),
-      callbackURL: buildCallbackUrl(req, "/auth/admin/google/callback"),
-    } as GoogleAuthOptions)(req, res, next);
-  },
+  startGoogleLogin("google-admin", "/auth/admin/google/callback"),
 );
 
 AuthRouter.get(
   "/admin/google/callback",
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("google-admin", {
-      failureRedirect: "/auth/failure",
-      callbackURL: buildCallbackUrl(req, "/auth/admin/google/callback"),
-    } as GoogleAuthOptions)(req, res, next);
-  },
+  verifyOAuthState,
+  finishGoogleLogin("google-admin", "/auth/admin/google/callback"),
   handleOAuthRedirect,
 );
 
@@ -158,23 +245,13 @@ AuthRouter.get(
 
 AuthRouter.get(
   "/client/google",
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("google-client", {
-      scope: GOOGLE_SCOPE_PROFILE_FIELDS,
-      state: buildOAuthState(req),
-      callbackURL: buildCallbackUrl(req, "/auth/client/google/callback"),
-    } as GoogleAuthOptions)(req, res, next);
-  },
+  startGoogleLogin("google-client", "/auth/client/google/callback"),
 );
 
 AuthRouter.get(
   "/client/google/callback",
-  (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("google-client", {
-      failureRedirect: "/auth/failure",
-      callbackURL: buildCallbackUrl(req, "/auth/client/google/callback"),
-    } as GoogleAuthOptions)(req, res, next);
-  },
+  verifyOAuthState,
+  finishGoogleLogin("google-client", "/auth/client/google/callback"),
   handleOAuthRedirect,
 );
 

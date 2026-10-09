@@ -20,6 +20,8 @@ export async function seedAddons(prisma: PrismaClient) {
         name: addon.name,
         description: addon.description,
         price: addon.price,
+        priceType: addon.priceType,
+        category: addon.category,
         isActive: addon.isActive,
       },
       create: {
@@ -28,10 +30,18 @@ export async function seedAddons(prisma: PrismaClient) {
         name: addon.name,
         description: addon.description,
         price: addon.price,
+        priceType: addon.priceType,
+        category: addon.category,
         isActive: addon.isActive,
       },
     });
   }
+
+  // Older dev databases have this add-on; it double-charged concrete.
+  await prisma.addon.updateMany({
+    where: { tenantId: tenant.id, code: "concreteSurcharge" },
+    data: { isActive: false },
+  });
 
   console.log(`   ✓ ${addonsData.length} addons seeded`);
 }

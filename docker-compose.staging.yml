@@ -1,0 +1,81 @@
+# Staging stack: runs on its own small instance (t3.nano) behind the same ALB
+# as prod (host rule: api-staging.<domain> -> staging target group, port 8000).
+#
+# Differs from docker-compose.prod.yml in:
+# - .env.staging (Stripe test keys, staging URLs/origins, staging DB creds)
+# - :staging image tag, so pushing a staging build never changes prod
+# - separate container and volume names
+# - Postgres tuned small and memory limits sized for a 512 MB instance
+#   (add ~1 GB swap on the host as a safety net)
+#
+# Deploy:
+#   docker compose -f docker-compose.staging.yml pull
+#   docker compose -f docker-compose.staging.yml up -d
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: rental-postgres-staging
+    restart: unless-stopped
+    env_file:
+      - .env.staging
+    # Small footprint for low-traffic staging.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=32MB
+      - -c
+      - max_connections=20
+      - -c
+      - work_mem=2MB
+      - -c
+      - maintenance_work_mem=16MB
+      - -c
+      - effective_cache_size=128MB
+    volumes:
+      - rental_postgres_data_staging:/var/lib/postgresql/data
+      - ./backups-staging:/backups
+    mem_limit: 160m
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-rental}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: oscarshub/rental-platform-server:${IMAGE_TAG:-staging}
+    container_name: rental-migrate-staging
+    env_file:
+      - .env.staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["npm", "run", "prisma:deploy"]
+    restart: "no"
+    mem_limit: 192m
+
+  server:
+    image: oscarshub/rental-platform-server:${IMAGE_TAG:-staging}
+    container_name: rental-server-staging
+    restart: unless-stopped
+    env_file:
+      - .env.staging
+    environment:
+      PORT: 8000
+      # Keep Node's heap under the container limit.
+      NODE_OPTIONS: --max-old-space-size=160
+    ports:
+      - "8000:8000"
+    mem_limit: 224m
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  rental_postgres_data_staging:

@@ -1,14 +1,14 @@
 import "dotenv/config";
 
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-import { seedTenants } from "./seed/tenants/tenants.seed.js";
-import { seedAddons } from "./seed/addons/addons.seed.js";
-import { seedDumpsters } from "./seed/dumpsters/dumpsters.seed.js";
-import { seedDumpsterBookings } from "./seed/dumpster-bookings/dumpster-bookings.seed.js";
+import { seedTenants } from "./seed/tenants/tenants.seed.ts";
+import { seedAddons } from "./seed/addons/addons.seed.ts";
+import { seedDumpsters } from "./seed/dumpsters/dumpsters.seed.ts";
+import { seedDumpsterBookings } from "./seed/dumpster-bookings/dumpster-bookings.seed.ts";
 import { seedTenantMemberships } from "./seed/tenant-memberships/tenant-memberships.seed.ts";
-import { seedUsers } from "./seed/users/users.seed.js";
+import { seedUsers } from "./seed/users/users.seed.ts";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
