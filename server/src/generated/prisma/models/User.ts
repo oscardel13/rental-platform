@@ -224,6 +224,10 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.TenantMembershipListRelationFilter
   clients?: Prisma.ClientListRelationFilter
+  createdBookings?: Prisma.BookingListRelationFilter
+  authoredBookingNotes?: Prisma.BookingNoteListRelationFilter
+  resolvedBookingNotes?: Prisma.BookingNoteListRelationFilter
+  bookingNoteViews?: Prisma.BookingNoteViewListRelationFilter
   drivers?: Prisma.DriverListRelationFilter
   workers?: Prisma.WorkerListRelationFilter
   authProviders?: Prisma.UserAuthProviderListRelationFilter
@@ -242,6 +246,10 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.TenantMembershipOrderByRelationAggregateInput
   clients?: Prisma.ClientOrderByRelationAggregateInput
+  createdBookings?: Prisma.BookingOrderByRelationAggregateInput
+  authoredBookingNotes?: Prisma.BookingNoteOrderByRelationAggregateInput
+  resolvedBookingNotes?: Prisma.BookingNoteOrderByRelationAggregateInput
+  bookingNoteViews?: Prisma.BookingNoteViewOrderByRelationAggregateInput
   drivers?: Prisma.DriverOrderByRelationAggregateInput
   workers?: Prisma.WorkerOrderByRelationAggregateInput
   authProviders?: Prisma.UserAuthProviderOrderByRelationAggregateInput
@@ -263,6 +271,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.TenantMembershipListRelationFilter
   clients?: Prisma.ClientListRelationFilter
+  createdBookings?: Prisma.BookingListRelationFilter
+  authoredBookingNotes?: Prisma.BookingNoteListRelationFilter
+  resolvedBookingNotes?: Prisma.BookingNoteListRelationFilter
+  bookingNoteViews?: Prisma.BookingNoteViewListRelationFilter
   drivers?: Prisma.DriverListRelationFilter
   workers?: Prisma.WorkerListRelationFilter
   authProviders?: Prisma.UserAuthProviderListRelationFilter
@@ -313,6 +325,10 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
@@ -331,6 +347,10 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
@@ -349,6 +369,10 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
@@ -367,6 +391,10 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
@@ -460,6 +488,68 @@ export type UserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type UserCreateNestedOneWithoutAuthoredBookingNotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedCreateWithoutAuthoredBookingNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthoredBookingNotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutResolvedBookingNotesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedCreateWithoutResolvedBookingNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResolvedBookingNotesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutAuthoredBookingNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedCreateWithoutAuthoredBookingNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthoredBookingNotesInput
+  upsert?: Prisma.UserUpsertWithoutAuthoredBookingNotesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthoredBookingNotesInput, Prisma.UserUpdateWithoutAuthoredBookingNotesInput>, Prisma.UserUncheckedUpdateWithoutAuthoredBookingNotesInput>
+}
+
+export type UserUpdateOneWithoutResolvedBookingNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedCreateWithoutResolvedBookingNotesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResolvedBookingNotesInput
+  upsert?: Prisma.UserUpsertWithoutResolvedBookingNotesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResolvedBookingNotesInput, Prisma.UserUpdateWithoutResolvedBookingNotesInput>, Prisma.UserUncheckedUpdateWithoutResolvedBookingNotesInput>
+}
+
+export type UserCreateNestedOneWithoutBookingNoteViewsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBookingNoteViewsInput, Prisma.UserUncheckedCreateWithoutBookingNoteViewsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBookingNoteViewsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBookingNoteViewsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBookingNoteViewsInput, Prisma.UserUncheckedCreateWithoutBookingNoteViewsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBookingNoteViewsInput
+  upsert?: Prisma.UserUpsertWithoutBookingNoteViewsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBookingNoteViewsInput, Prisma.UserUpdateWithoutBookingNoteViewsInput>, Prisma.UserUncheckedUpdateWithoutBookingNoteViewsInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedBookingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedBookingsInput, Prisma.UserUncheckedCreateWithoutCreatedBookingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedBookingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedBookingsInput, Prisma.UserUncheckedCreateWithoutCreatedBookingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedBookingsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedBookingsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedBookingsInput, Prisma.UserUpdateWithoutCreatedBookingsInput>, Prisma.UserUncheckedUpdateWithoutCreatedBookingsInput>
+}
+
 export type UserCreateNestedOneWithoutClientsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutClientsInput, Prisma.UserUncheckedCreateWithoutClientsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutClientsInput
@@ -536,6 +626,406 @@ export type EnumPlatformRoleFieldUpdateOperationsInput = {
   set?: $Enums.PlatformRole
 }
 
+export type UserCreateWithoutAuthoredBookingNotesInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAuthoredBookingNotesInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAuthoredBookingNotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedCreateWithoutAuthoredBookingNotesInput>
+}
+
+export type UserCreateWithoutResolvedBookingNotesInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutResolvedBookingNotesInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutResolvedBookingNotesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedCreateWithoutResolvedBookingNotesInput>
+}
+
+export type UserUpsertWithoutAuthoredBookingNotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedUpdateWithoutAuthoredBookingNotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedCreateWithoutAuthoredBookingNotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuthoredBookingNotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthoredBookingNotesInput, Prisma.UserUncheckedUpdateWithoutAuthoredBookingNotesInput>
+}
+
+export type UserUpdateWithoutAuthoredBookingNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuthoredBookingNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutResolvedBookingNotesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedUpdateWithoutResolvedBookingNotesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedCreateWithoutResolvedBookingNotesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutResolvedBookingNotesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutResolvedBookingNotesInput, Prisma.UserUncheckedUpdateWithoutResolvedBookingNotesInput>
+}
+
+export type UserUpdateWithoutResolvedBookingNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutResolvedBookingNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutBookingNoteViewsInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutBookingNoteViewsInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutBookingNoteViewsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBookingNoteViewsInput, Prisma.UserUncheckedCreateWithoutBookingNoteViewsInput>
+}
+
+export type UserUpsertWithoutBookingNoteViewsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBookingNoteViewsInput, Prisma.UserUncheckedUpdateWithoutBookingNoteViewsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBookingNoteViewsInput, Prisma.UserUncheckedCreateWithoutBookingNoteViewsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBookingNoteViewsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBookingNoteViewsInput, Prisma.UserUncheckedUpdateWithoutBookingNoteViewsInput>
+}
+
+export type UserUpdateWithoutBookingNoteViewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBookingNoteViewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCreatedBookingsInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedBookingsInput = {
+  id?: string
+  platformRole?: $Enums.PlatformRole
+  name?: string | null
+  email?: string | null
+  phone?: string | null
+  picture?: string | null
+  isActive?: boolean
+  lastLoginAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
+  clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
+  drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
+  workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
+  authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedBookingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedBookingsInput, Prisma.UserUncheckedCreateWithoutCreatedBookingsInput>
+}
+
+export type UserUpsertWithoutCreatedBookingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedBookingsInput, Prisma.UserUncheckedUpdateWithoutCreatedBookingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedBookingsInput, Prisma.UserUncheckedCreateWithoutCreatedBookingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedBookingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedBookingsInput, Prisma.UserUncheckedUpdateWithoutCreatedBookingsInput>
+}
+
+export type UserUpdateWithoutCreatedBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  platformRole?: Prisma.EnumPlatformRoleFieldUpdateOperationsInput | $Enums.PlatformRole
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  picture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
+  clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
+  drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
+  workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
+  authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutClientsInput = {
   id?: string
   platformRole?: $Enums.PlatformRole
@@ -548,6 +1038,10 @@ export type UserCreateWithoutClientsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
@@ -565,6 +1059,10 @@ export type UserUncheckedCreateWithoutClientsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
@@ -598,6 +1096,10 @@ export type UserUpdateWithoutClientsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
@@ -615,6 +1117,10 @@ export type UserUncheckedUpdateWithoutClientsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
@@ -633,6 +1139,10 @@ export type UserCreateWithoutDriversInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
 }
@@ -650,6 +1160,10 @@ export type UserUncheckedCreateWithoutDriversInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
 }
@@ -683,6 +1197,10 @@ export type UserUpdateWithoutDriversInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
 }
@@ -700,6 +1218,10 @@ export type UserUncheckedUpdateWithoutDriversInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -717,6 +1239,10 @@ export type UserCreateWithoutWorkersInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
 }
@@ -734,6 +1260,10 @@ export type UserUncheckedCreateWithoutWorkersInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
 }
@@ -767,6 +1297,10 @@ export type UserUpdateWithoutWorkersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
 }
@@ -784,6 +1318,10 @@ export type UserUncheckedUpdateWithoutWorkersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -800,6 +1338,10 @@ export type UserCreateWithoutMembershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderCreateNestedManyWithoutUserInput
@@ -817,6 +1359,10 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
   authProviders?: Prisma.UserAuthProviderUncheckedCreateNestedManyWithoutUserInput
@@ -850,6 +1396,10 @@ export type UserUpdateWithoutMembershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUpdateManyWithoutUserNestedInput
@@ -867,6 +1417,10 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
   authProviders?: Prisma.UserAuthProviderUncheckedUpdateManyWithoutUserNestedInput
@@ -885,6 +1439,10 @@ export type UserCreateWithoutAuthProvidersInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerCreateNestedManyWithoutUserInput
 }
@@ -902,6 +1460,10 @@ export type UserUncheckedCreateWithoutAuthProvidersInput = {
   updatedAt?: Date | string
   memberships?: Prisma.TenantMembershipUncheckedCreateNestedManyWithoutUserInput
   clients?: Prisma.ClientUncheckedCreateNestedManyWithoutUserInput
+  createdBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCreatedByInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutAuthorUserInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedCreateNestedManyWithoutResolvedByInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedCreateNestedManyWithoutUserInput
   drivers?: Prisma.DriverUncheckedCreateNestedManyWithoutUserInput
   workers?: Prisma.WorkerUncheckedCreateNestedManyWithoutUserInput
 }
@@ -935,6 +1497,10 @@ export type UserUpdateWithoutAuthProvidersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUpdateManyWithoutUserNestedInput
 }
@@ -952,6 +1518,10 @@ export type UserUncheckedUpdateWithoutAuthProvidersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.TenantMembershipUncheckedUpdateManyWithoutUserNestedInput
   clients?: Prisma.ClientUncheckedUpdateManyWithoutUserNestedInput
+  createdBookings?: Prisma.BookingUncheckedUpdateManyWithoutCreatedByNestedInput
+  authoredBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutAuthorUserNestedInput
+  resolvedBookingNotes?: Prisma.BookingNoteUncheckedUpdateManyWithoutResolvedByNestedInput
+  bookingNoteViews?: Prisma.BookingNoteViewUncheckedUpdateManyWithoutUserNestedInput
   drivers?: Prisma.DriverUncheckedUpdateManyWithoutUserNestedInput
   workers?: Prisma.WorkerUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -964,6 +1534,10 @@ export type UserUncheckedUpdateWithoutAuthProvidersInput = {
 export type UserCountOutputType = {
   memberships: number
   clients: number
+  createdBookings: number
+  authoredBookingNotes: number
+  resolvedBookingNotes: number
+  bookingNoteViews: number
   drivers: number
   workers: number
   authProviders: number
@@ -972,6 +1546,10 @@ export type UserCountOutputType = {
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
   clients?: boolean | UserCountOutputTypeCountClientsArgs
+  createdBookings?: boolean | UserCountOutputTypeCountCreatedBookingsArgs
+  authoredBookingNotes?: boolean | UserCountOutputTypeCountAuthoredBookingNotesArgs
+  resolvedBookingNotes?: boolean | UserCountOutputTypeCountResolvedBookingNotesArgs
+  bookingNoteViews?: boolean | UserCountOutputTypeCountBookingNoteViewsArgs
   drivers?: boolean | UserCountOutputTypeCountDriversArgs
   workers?: boolean | UserCountOutputTypeCountWorkersArgs
   authProviders?: boolean | UserCountOutputTypeCountAuthProvidersArgs
@@ -999,6 +1577,34 @@ export type UserCountOutputTypeCountMembershipsArgs<ExtArgs extends runtime.Type
  */
 export type UserCountOutputTypeCountClientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ClientWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuthoredBookingNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingNoteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountResolvedBookingNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingNoteWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBookingNoteViewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingNoteViewWhereInput
 }
 
 /**
@@ -1036,6 +1642,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   clients?: boolean | Prisma.User$clientsArgs<ExtArgs>
+  createdBookings?: boolean | Prisma.User$createdBookingsArgs<ExtArgs>
+  authoredBookingNotes?: boolean | Prisma.User$authoredBookingNotesArgs<ExtArgs>
+  resolvedBookingNotes?: boolean | Prisma.User$resolvedBookingNotesArgs<ExtArgs>
+  bookingNoteViews?: boolean | Prisma.User$bookingNoteViewsArgs<ExtArgs>
   drivers?: boolean | Prisma.User$driversArgs<ExtArgs>
   workers?: boolean | Prisma.User$workersArgs<ExtArgs>
   authProviders?: boolean | Prisma.User$authProvidersArgs<ExtArgs>
@@ -1085,6 +1695,10 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   clients?: boolean | Prisma.User$clientsArgs<ExtArgs>
+  createdBookings?: boolean | Prisma.User$createdBookingsArgs<ExtArgs>
+  authoredBookingNotes?: boolean | Prisma.User$authoredBookingNotesArgs<ExtArgs>
+  resolvedBookingNotes?: boolean | Prisma.User$resolvedBookingNotesArgs<ExtArgs>
+  bookingNoteViews?: boolean | Prisma.User$bookingNoteViewsArgs<ExtArgs>
   drivers?: boolean | Prisma.User$driversArgs<ExtArgs>
   workers?: boolean | Prisma.User$workersArgs<ExtArgs>
   authProviders?: boolean | Prisma.User$authProvidersArgs<ExtArgs>
@@ -1098,6 +1712,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     memberships: Prisma.$TenantMembershipPayload<ExtArgs>[]
     clients: Prisma.$ClientPayload<ExtArgs>[]
+    createdBookings: Prisma.$BookingPayload<ExtArgs>[]
+    authoredBookingNotes: Prisma.$BookingNotePayload<ExtArgs>[]
+    resolvedBookingNotes: Prisma.$BookingNotePayload<ExtArgs>[]
+    bookingNoteViews: Prisma.$BookingNoteViewPayload<ExtArgs>[]
     drivers: Prisma.$DriverPayload<ExtArgs>[]
     workers: Prisma.$WorkerPayload<ExtArgs>[]
     authProviders: Prisma.$UserAuthProviderPayload<ExtArgs>[]
@@ -1509,6 +2127,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   memberships<T extends Prisma.User$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   clients<T extends Prisma.User$clientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$clientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdBookings<T extends Prisma.User$createdBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  authoredBookingNotes<T extends Prisma.User$authoredBookingNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authoredBookingNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resolvedBookingNotes<T extends Prisma.User$resolvedBookingNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resolvedBookingNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingNotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bookingNoteViews<T extends Prisma.User$bookingNoteViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bookingNoteViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingNoteViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   drivers<T extends Prisma.User$driversArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$driversArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DriverPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workers<T extends Prisma.User$workersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$workersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authProviders<T extends Prisma.User$authProvidersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authProvidersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserAuthProviderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1989,6 +2611,102 @@ export type User$clientsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.ClientScalarFieldEnum | Prisma.ClientScalarFieldEnum[]
+}
+
+/**
+ * User.createdBookings
+ */
+export type User$createdBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
+  orderBy?: Prisma.BookingOrderByWithRelationInput | Prisma.BookingOrderByWithRelationInput[]
+  cursor?: Prisma.BookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
+}
+
+/**
+ * User.authoredBookingNotes
+ */
+export type User$authoredBookingNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingNote
+   */
+  select?: Prisma.BookingNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingNote
+   */
+  omit?: Prisma.BookingNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingNoteInclude<ExtArgs> | null
+  where?: Prisma.BookingNoteWhereInput
+  orderBy?: Prisma.BookingNoteOrderByWithRelationInput | Prisma.BookingNoteOrderByWithRelationInput[]
+  cursor?: Prisma.BookingNoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingNoteScalarFieldEnum | Prisma.BookingNoteScalarFieldEnum[]
+}
+
+/**
+ * User.resolvedBookingNotes
+ */
+export type User$resolvedBookingNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingNote
+   */
+  select?: Prisma.BookingNoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingNote
+   */
+  omit?: Prisma.BookingNoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingNoteInclude<ExtArgs> | null
+  where?: Prisma.BookingNoteWhereInput
+  orderBy?: Prisma.BookingNoteOrderByWithRelationInput | Prisma.BookingNoteOrderByWithRelationInput[]
+  cursor?: Prisma.BookingNoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingNoteScalarFieldEnum | Prisma.BookingNoteScalarFieldEnum[]
+}
+
+/**
+ * User.bookingNoteViews
+ */
+export type User$bookingNoteViewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BookingNoteView
+   */
+  select?: Prisma.BookingNoteViewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BookingNoteView
+   */
+  omit?: Prisma.BookingNoteViewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingNoteViewInclude<ExtArgs> | null
+  where?: Prisma.BookingNoteViewWhereInput
+  orderBy?: Prisma.BookingNoteViewOrderByWithRelationInput | Prisma.BookingNoteViewOrderByWithRelationInput[]
+  cursor?: Prisma.BookingNoteViewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingNoteViewScalarFieldEnum | Prisma.BookingNoteViewScalarFieldEnum[]
 }
 
 /**

@@ -30,12 +30,16 @@ export type InventoryItemAvgAggregateOutputType = {
   sizeValue: runtime.Decimal | null
   basePrice: runtime.Decimal | null
   concretePrice: runtime.Decimal | null
+  rentalDaysIncluded: number | null
+  extraDayRate: runtime.Decimal | null
 }
 
 export type InventoryItemSumAggregateOutputType = {
   sizeValue: runtime.Decimal | null
   basePrice: runtime.Decimal | null
   concretePrice: runtime.Decimal | null
+  rentalDaysIncluded: number | null
+  extraDayRate: runtime.Decimal | null
 }
 
 export type InventoryItemMinAggregateOutputType = {
@@ -56,6 +60,8 @@ export type InventoryItemMinAggregateOutputType = {
   isActive: boolean | null
   basePrice: runtime.Decimal | null
   concretePrice: runtime.Decimal | null
+  rentalDaysIncluded: number | null
+  extraDayRate: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +84,8 @@ export type InventoryItemMaxAggregateOutputType = {
   isActive: boolean | null
   basePrice: runtime.Decimal | null
   concretePrice: runtime.Decimal | null
+  rentalDaysIncluded: number | null
+  extraDayRate: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -100,6 +108,8 @@ export type InventoryItemCountAggregateOutputType = {
   isActive: number
   basePrice: number
   concretePrice: number
+  rentalDaysIncluded: number
+  extraDayRate: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -110,12 +120,16 @@ export type InventoryItemAvgAggregateInputType = {
   sizeValue?: true
   basePrice?: true
   concretePrice?: true
+  rentalDaysIncluded?: true
+  extraDayRate?: true
 }
 
 export type InventoryItemSumAggregateInputType = {
   sizeValue?: true
   basePrice?: true
   concretePrice?: true
+  rentalDaysIncluded?: true
+  extraDayRate?: true
 }
 
 export type InventoryItemMinAggregateInputType = {
@@ -136,6 +150,8 @@ export type InventoryItemMinAggregateInputType = {
   isActive?: true
   basePrice?: true
   concretePrice?: true
+  rentalDaysIncluded?: true
+  extraDayRate?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -158,6 +174,8 @@ export type InventoryItemMaxAggregateInputType = {
   isActive?: true
   basePrice?: true
   concretePrice?: true
+  rentalDaysIncluded?: true
+  extraDayRate?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -180,6 +198,8 @@ export type InventoryItemCountAggregateInputType = {
   isActive?: true
   basePrice?: true
   concretePrice?: true
+  rentalDaysIncluded?: true
+  extraDayRate?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -289,6 +309,8 @@ export type InventoryItemGroupByOutputType = {
   isActive: boolean
   basePrice: runtime.Decimal
   concretePrice: runtime.Decimal
+  rentalDaysIncluded: number
+  extraDayRate: runtime.Decimal
   createdAt: Date
   updatedAt: Date
   _count: InventoryItemCountAggregateOutputType | null
@@ -334,6 +356,8 @@ export type InventoryItemWhereInput = {
   isActive?: Prisma.BoolFilter<"InventoryItem"> | boolean
   basePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFilter<"InventoryItem"> | number
+  extraDayRate?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -358,6 +382,8 @@ export type InventoryItemOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -386,6 +412,8 @@ export type InventoryItemWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"InventoryItem"> | boolean
   basePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFilter<"InventoryItem"> | number
+  extraDayRate?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -410,6 +438,8 @@ export type InventoryItemOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.InventoryItemCountOrderByAggregateInput
@@ -440,6 +470,8 @@ export type InventoryItemScalarWhereWithAggregatesInput = {
   isActive?: Prisma.BoolWithAggregatesFilter<"InventoryItem"> | boolean
   basePrice?: Prisma.DecimalWithAggregatesFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalWithAggregatesFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntWithAggregatesFilter<"InventoryItem"> | number
+  extraDayRate?: Prisma.DecimalWithAggregatesFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"InventoryItem"> | Date | string
 }
@@ -461,6 +493,8 @@ export type InventoryItemCreateInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInventoryInput
@@ -485,6 +519,8 @@ export type InventoryItemUncheckedCreateInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingItems?: Prisma.BookingInventoryItemUncheckedCreateNestedManyWithoutInventoryItemInput
@@ -507,6 +543,8 @@ export type InventoryItemUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInventoryNestedInput
@@ -531,6 +569,8 @@ export type InventoryItemUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingItems?: Prisma.BookingInventoryItemUncheckedUpdateManyWithoutInventoryItemNestedInput
@@ -554,6 +594,8 @@ export type InventoryItemCreateManyInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -575,6 +617,8 @@ export type InventoryItemUpdateManyMutationInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -597,6 +641,8 @@ export type InventoryItemUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -629,6 +675,8 @@ export type InventoryItemCountOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -637,6 +685,8 @@ export type InventoryItemAvgOrderByAggregateInput = {
   sizeValue?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
 }
 
 export type InventoryItemMaxOrderByAggregateInput = {
@@ -657,6 +707,8 @@ export type InventoryItemMaxOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -679,6 +731,8 @@ export type InventoryItemMinOrderByAggregateInput = {
   isActive?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -687,6 +741,8 @@ export type InventoryItemSumOrderByAggregateInput = {
   sizeValue?: Prisma.SortOrder
   basePrice?: Prisma.SortOrder
   concretePrice?: Prisma.SortOrder
+  rentalDaysIncluded?: Prisma.SortOrder
+  extraDayRate?: Prisma.SortOrder
 }
 
 export type InventoryItemListRelationFilter = {
@@ -790,6 +846,8 @@ export type InventoryItemCreateWithoutBookingItemsInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutInventoryInput
@@ -813,6 +871,8 @@ export type InventoryItemUncheckedCreateWithoutBookingItemsInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -850,6 +910,8 @@ export type InventoryItemUpdateWithoutBookingItemsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutInventoryNestedInput
@@ -873,6 +935,8 @@ export type InventoryItemUncheckedUpdateWithoutBookingItemsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -894,6 +958,8 @@ export type InventoryItemCreateWithoutTenantInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingItems?: Prisma.BookingInventoryItemCreateNestedManyWithoutInventoryItemInput
@@ -916,6 +982,8 @@ export type InventoryItemUncheckedCreateWithoutTenantInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
   bookingItems?: Prisma.BookingInventoryItemUncheckedCreateNestedManyWithoutInventoryItemInput
@@ -968,6 +1036,8 @@ export type InventoryItemScalarWhereInput = {
   isActive?: Prisma.BoolFilter<"InventoryItem"> | boolean
   basePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFilter<"InventoryItem"> | number
+  extraDayRate?: Prisma.DecimalFilter<"InventoryItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"InventoryItem"> | Date | string
 }
@@ -989,6 +1059,8 @@ export type InventoryItemCreateManyTenantInput = {
   isActive?: boolean
   basePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: number
+  extraDayRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1010,6 +1082,8 @@ export type InventoryItemUpdateWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingItems?: Prisma.BookingInventoryItemUpdateManyWithoutInventoryItemNestedInput
@@ -1032,6 +1106,8 @@ export type InventoryItemUncheckedUpdateWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookingItems?: Prisma.BookingInventoryItemUncheckedUpdateManyWithoutInventoryItemNestedInput
@@ -1054,6 +1130,8 @@ export type InventoryItemUncheckedUpdateManyWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   basePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   concretePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rentalDaysIncluded?: Prisma.IntFieldUpdateOperationsInput | number
+  extraDayRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1107,6 +1185,8 @@ export type InventoryItemSelect<ExtArgs extends runtime.Types.Extensions.Interna
   isActive?: boolean
   basePrice?: boolean
   concretePrice?: boolean
+  rentalDaysIncluded?: boolean
+  extraDayRate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1132,6 +1212,8 @@ export type InventoryItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   isActive?: boolean
   basePrice?: boolean
   concretePrice?: boolean
+  rentalDaysIncluded?: boolean
+  extraDayRate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1155,6 +1237,8 @@ export type InventoryItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   isActive?: boolean
   basePrice?: boolean
   concretePrice?: boolean
+  rentalDaysIncluded?: boolean
+  extraDayRate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1178,11 +1262,13 @@ export type InventoryItemSelectScalar = {
   isActive?: boolean
   basePrice?: boolean
   concretePrice?: boolean
+  rentalDaysIncluded?: boolean
+  extraDayRate?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type InventoryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "category" | "label" | "name" | "description" | "sizeValue" | "sizeUnit" | "serialNumber" | "primaryColor" | "secondaryColor" | "colorPattern" | "status" | "notes" | "isActive" | "basePrice" | "concretePrice" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryItem"]>
+export type InventoryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "category" | "label" | "name" | "description" | "sizeValue" | "sizeUnit" | "serialNumber" | "primaryColor" | "secondaryColor" | "colorPattern" | "status" | "notes" | "isActive" | "basePrice" | "concretePrice" | "rentalDaysIncluded" | "extraDayRate" | "createdAt" | "updatedAt", ExtArgs["result"]["inventoryItem"]>
 export type InventoryItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   bookingItems?: boolean | Prisma.InventoryItem$bookingItemsArgs<ExtArgs>
@@ -1219,6 +1305,8 @@ export type $InventoryItemPayload<ExtArgs extends runtime.Types.Extensions.Inter
     isActive: boolean
     basePrice: runtime.Decimal
     concretePrice: runtime.Decimal
+    rentalDaysIncluded: number
+    extraDayRate: runtime.Decimal
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["inventoryItem"]>
@@ -1663,6 +1751,8 @@ export interface InventoryItemFieldRefs {
   readonly isActive: Prisma.FieldRef<"InventoryItem", 'Boolean'>
   readonly basePrice: Prisma.FieldRef<"InventoryItem", 'Decimal'>
   readonly concretePrice: Prisma.FieldRef<"InventoryItem", 'Decimal'>
+  readonly rentalDaysIncluded: Prisma.FieldRef<"InventoryItem", 'Int'>
+  readonly extraDayRate: Prisma.FieldRef<"InventoryItem", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"InventoryItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"InventoryItem", 'DateTime'>
 }

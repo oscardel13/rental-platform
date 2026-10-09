@@ -1,43 +1,12 @@
 import type { Request, Response } from "express";
 
-import { prisma } from "../../../libs/prisma.ts";
 import {
   getAddons,
   getInventoryItemsFilteredByDates,
   getPublicInventoryAvailabilitySummary,
 } from "../../../services/inventory/inventory.service.ts";
 
-const DEFAULT_TENANT_SLUG =
-  process.env.DEFAULT_TENANT_SLUG || "iron-peak-services";
-
-function getQueryString(value: unknown) {
-  if (Array.isArray(value)) {
-    return value[0] ? String(value[0]) : null;
-  }
-
-  if (value === undefined || value === null) {
-    return null;
-  }
-
-  return String(value);
-}
-
-async function getPublicTenantId(req: Request) {
-  const queryTenantSlug = getQueryString(req.query.tenant);
-
-  const tenantSlug = queryTenantSlug || DEFAULT_TENANT_SLUG;
-
-  const tenant = await prisma.tenant.findUnique({
-    where: {
-      slug: tenantSlug,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  return tenant?.id ?? null;
-}
+import { getPublicTenantId } from "../public.tenant.helper.ts";
 
 export const HttpGetPublicAvailableInventoryItems = async (
   req: Request,

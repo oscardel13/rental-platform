@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 
 import { getQueryString, getPublicTenant } from "../public.tenant.helper.ts";
 import {
-  createPublicBooking,
   createPublicBookingCheckoutDraft,
   createPublicBookingQuote,
   getPublicBookingStatus,
@@ -23,7 +22,14 @@ function getErrorStatusCode(error: unknown) {
 }
 
 function getErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
+  // Only deliberate service errors (createServiceError, 4xx) are shown to
+  // the caller; anything else (Prisma, Stripe, bugs) gets the fallback.
+  if (
+    error instanceof Error &&
+    "statusCode" in error &&
+    typeof error.statusCode === "number" &&
+    error.statusCode < 500
+  ) {
     return error.message;
   }
 
@@ -121,32 +127,6 @@ export const HttpUpdatePublicBookingCheckoutDraft = async (
 
     res.status(getErrorStatusCode(error)).json({
       error: getErrorMessage(error, "Failed to update checkout draft"),
-    });
-  }
-};
-
-export const HttpCreatePublicBooking = async (req: Request, res: Response) => {
-  try {
-    const tenant = await getPublicTenant(req);
-
-    if (!tenant) {
-      return res.status(404).json({
-        error: "Tenant not found",
-      });
-    }
-
-    const booking = await createPublicBooking({
-      tenantId: tenant.id,
-      tenantTimezone: tenant.timezone,
-      data: req.body,
-    });
-
-    res.status(201).json(booking);
-  } catch (error) {
-    console.error("Failed to create public booking:", error);
-
-    res.status(getErrorStatusCode(error)).json({
-      error: getErrorMessage(error, "Failed to create booking"),
     });
   }
 };

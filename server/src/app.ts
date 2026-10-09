@@ -5,15 +5,29 @@ import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
 import api from "./routes/api.ts";
+import { tenantCorsOptions } from "./middleware/tenant.middleware.ts";
 
 import session from "express-session";
 import pg from "pg";
 import connectPgSimple from "connect-pg-simple";
 import { passport, config } from "./routes/auth/passport.ts";
+import { SESSION_COOKIE_NAME } from "./routes/auth/auth.controller.ts";
 
 const app = express();
 
-// app.set("trust proxy", 1);
+const isProduction = process.env.NODE_ENV === "production";
+const isStaging = process.env.NODE_ENV === "staging";
+const isSecureEnv = isProduction || isStaging;
+
+// Behind the ALB: trust its X-Forwarded-* headers so req.ip is the real
+// client (rate limits) and req.protocol is https (OAuth callback URLs).
+// Only one hop, so clients can't spoof their IP with their own header.
+if (isSecureEnv || process.env.TRUST_PROXY === "true") {
+  app.set("trust proxy", 1);
+}
+
+// Don't advertise the framework.
+app.disable("x-powered-by");
 
 app.use(
   helmet({
@@ -21,14 +35,9 @@ app.use(
   }),
 );
 
-const allowedOrigins = process.env.ORIGIN_WHITELIST?.split(",") || [];
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  }),
-);
+// Allowed browser origins come from TenantDomain (plus PLATFORM_ORIGINS),
+// so adding a tenant doesn't need a restart.
+app.use(cors(tenantCorsOptions));
 
 const COOKIE_KEYS = (() => {
   const k1 = config.COOKIE_KEY_1;
@@ -45,13 +54,9 @@ const pgPool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-const isProduction = process.env.NODE_ENV === "production";
-const isStaging = process.env.NODE_ENV === "staging";
-const isSecureEnv = isProduction || isStaging;
-
 app.use(
   session({
-    name: "rental.sid",
+    name: SESSION_COOKIE_NAME,
     secret: COOKIE_KEYS,
     resave: false,
     saveUninitialized: false,
@@ -82,8 +87,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.baseUrl}${req.url} ${delta}ms`);
 });
 
+// Health check for the ALB target group.
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from BluePrint Barbers!");
+  res.json({ ok: true });
 });
 
 app.use("/", api);

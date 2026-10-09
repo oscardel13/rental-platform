@@ -75,17 +75,33 @@ function validateGoogleProfile(
   };
 }
 
+// passReqToCallback: the verify callbacks read the login tenant from the
+// session.
 const ADMIN_AUTH_OPTIONS = {
   clientID: config.GOOGLE_CLIENT_ID || "",
   clientSecret: config.GOOGLE_CLIENT_SECRET || "",
+  passReqToCallback: true as const,
 };
 
 const CLIENT_AUTH_OPTIONS = {
   clientID: config.GOOGLE_CLIENT_ID || "",
   clientSecret: config.GOOGLE_CLIENT_SECRET || "",
+  passReqToCallback: true as const,
 };
 
+// Set by the auth router when the login started, from the site's domain.
+function getLoginTenantId(req: any) {
+  const tenantId = req?.session?.oauthTenantId;
+
+  if (typeof tenantId !== "string" || !tenantId) {
+    throw new Error("Login session expired. Please try again.");
+  }
+
+  return tenantId;
+}
+
 async function verifyGoogleAdminCallback(
+  req: any,
   _accessToken: string,
   _refreshToken: string,
   profile: Profile,
@@ -99,6 +115,7 @@ async function verifyGoogleAdminCallback(
     }
 
     const user = await findOrCreateAdminFromProvider({
+      tenantId: getLoginTenantId(req),
       provider: "google",
       providerId: googleProfile.sub,
       email: googleProfile.email,
@@ -113,6 +130,7 @@ async function verifyGoogleAdminCallback(
 }
 
 async function verifyGoogleClientCallback(
+  req: any,
   _accessToken: string,
   _refreshToken: string,
   profile: Profile,
@@ -126,6 +144,7 @@ async function verifyGoogleClientCallback(
     }
 
     const user = await findOrCreateClientFromProvider({
+      tenantId: getLoginTenantId(req),
       provider: "google",
       providerId: googleProfile.sub,
       email: googleProfile.email,

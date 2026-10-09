@@ -152,20 +152,26 @@ function getMaterialName(booking: BookingWithRelations): string {
 }
 
 function getAddressHtml(booking: BookingWithRelations): string {
+  // Customer-pickup bookings have no delivery address.
+  if (!booking.address1) return "Customer pickup";
+
   return [
     booking.address1,
     booking.address2,
-    `${booking.city}, ${booking.state} ${booking.zip}`,
+    `${booking.city ?? ""}, ${booking.state ?? ""} ${booking.zip ?? ""}`,
   ]
     .filter(Boolean)
     .join("<br />");
 }
 
 function getAddressText(booking: BookingWithRelations): string {
+  // Customer-pickup bookings have no delivery address.
+  if (!booking.address1) return "Customer pickup";
+
   return [
     booking.address1,
     booking.address2,
-    `${booking.city}, ${booking.state} ${booking.zip}`,
+    `${booking.city ?? ""}, ${booking.state ?? ""} ${booking.zip ?? ""}`,
   ]
     .filter(Boolean)
     .join("\n");

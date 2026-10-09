@@ -1,4 +1,9 @@
-import { Prisma } from "../../generated/prisma/client.ts";
+import {
+  BookingStatus,
+  FulfillmentType,
+  PaymentStatus,
+  Prisma,
+} from "../../generated/prisma/client.ts";
 
 import { createServiceError } from "../../utils/error.utils.ts";
 import { parseDateOnly } from "../../utils/date.utils.ts";
@@ -16,6 +21,54 @@ function requireDateOnly(value: unknown, fieldName: string) {
 
   return date;
 }
+
+function parseEnumValue<T extends string>(
+  enumObject: Record<string, T>,
+  value: unknown,
+  field: string,
+): T {
+  const allowed = Object.values(enumObject);
+
+  if (typeof value === "string" && allowed.includes(value as T)) {
+    return value as T;
+  }
+
+  throw createServiceError(
+    `Invalid ${field}. Expected one of: ${allowed.join(", ")}.`,
+    400,
+  );
+}
+
+function requireMoney(value: unknown, fieldName: string) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number) || number < 0) {
+    throw createServiceError(`${fieldName} must be 0 or more.`, 400);
+  }
+
+  return toDecimal(number);
+}
+
+/**
+ * Fields that change what the booking costs. When any of these are edited,
+ * updateAdminBooking recalculates extra days, add-ons, subtotal, tax and
+ * total on the server.
+ */
+export const ADMIN_PRICING_FIELDS = [
+  "deliveryDate",
+  "pickupDate",
+  "pickupDateUnknown",
+  "rentalDaysIncluded",
+  "extraDayRate",
+  "priorityDelivery",
+  "basePrice",
+  "deliveryFee",
+  "mileageFee",
+  "priorityDeliveryFee",
+  "materialFee",
+  "overageFee",
+  "discountAmount",
+];
 
 export function normalizeAdminBookingUpdateData(
   data: any,
@@ -84,15 +137,31 @@ export function normalizeAdminBookingUpdateData(
       : {}),
 
     ...(data.pickupDateUnknown !== undefined
-      ? { pickupDateUnknown: data.pickupDateUnknown }
+      ? {
+          pickupDateUnknown: Boolean(data.pickupDateUnknown),
+          ...(data.pickupDateUnknown ? { pickupDate: null } : {}),
+        }
       : {}),
 
     ...(data.rentalDaysIncluded !== undefined
-      ? { rentalDaysIncluded: Number(data.rentalDaysIncluded) }
+      ? {
+          rentalDaysIncluded: (() => {
+            const days = Number(data.rentalDaysIncluded);
+
+            if (!Number.isInteger(days) || days < 0) {
+              throw createServiceError(
+                "Rental days included must be a whole number.",
+                400,
+              );
+            }
+
+            return days;
+          })(),
+        }
       : {}),
 
     ...(data.priorityDelivery !== undefined
-      ? { priorityDelivery: data.priorityDelivery }
+      ? { priorityDelivery: Boolean(data.priorityDelivery) }
       : {}),
 
     ...(data.deliveryTime !== undefined
@@ -106,30 +175,72 @@ export function normalizeAdminBookingUpdateData(
       : {}),
 
     ...(data.bookingStatus !== undefined
-      ? { bookingStatus: data.bookingStatus }
+      ? {
+          bookingStatus: parseEnumValue(
+            BookingStatus,
+            data.bookingStatus,
+            "bookingStatus",
+          ),
+        }
       : {}),
     ...(data.paymentStatus !== undefined
-      ? { paymentStatus: data.paymentStatus }
+      ? {
+          paymentStatus: parseEnumValue(
+            PaymentStatus,
+            data.paymentStatus,
+            "paymentStatus",
+          ),
+        }
       : {}),
 
+    // Price lines staff may adjust. Extra-days fee, add-ons total,
+    // subtotal, tax and total are always recalculated, never taken from the
+    // request.
     ...(data.basePrice !== undefined
-      ? { basePrice: toDecimal(data.basePrice) }
+      ? { basePrice: requireMoney(data.basePrice, "Base price") }
       : {}),
     ...(data.deliveryFee !== undefined
-      ? { deliveryFee: toDecimal(data.deliveryFee) }
+      ? { deliveryFee: requireMoney(data.deliveryFee, "Delivery fee") }
       : {}),
     ...(data.mileageFee !== undefined
-      ? { mileageFee: toDecimal(data.mileageFee) }
+      ? { mileageFee: requireMoney(data.mileageFee, "Mileage fee") }
       : {}),
-    ...(data.extraDaysFee !== undefined
-      ? { extraDaysFee: toDecimal(data.extraDaysFee) }
+    ...(data.priorityDeliveryFee !== undefined
+      ? {
+          priorityDeliveryFee: requireMoney(
+            data.priorityDeliveryFee,
+            "Priority delivery fee",
+          ),
+        }
+      : {}),
+    ...(data.extraDayRate !== undefined
+      ? { extraDayRate: requireMoney(data.extraDayRate, "Extra day rate") }
+      : {}),
+    ...(data.materialFee !== undefined
+      ? { materialFee: requireMoney(data.materialFee, "Material fee") }
       : {}),
     ...(data.overageFee !== undefined
-      ? { overageFee: toDecimal(data.overageFee) }
+      ? { overageFee: requireMoney(data.overageFee, "Overage fee") }
       : {}),
-    ...(data.addonsTotal !== undefined
-      ? { addonsTotal: toDecimal(data.addonsTotal) }
+    ...(data.discountAmount !== undefined
+      ? { discountAmount: requireMoney(data.discountAmount, "Discount") }
       : {}),
-    ...(data.total !== undefined ? { total: toDecimal(data.total) } : {}),
+    ...(data.discountReason !== undefined
+      ? { discountReason: data.discountReason || null }
+      : {}),
+
+    ...(data.material !== undefined ? { material: data.material || null } : {}),
+    ...(data.fulfillmentType !== undefined
+      ? {
+          fulfillmentType: parseEnumValue(
+            FulfillmentType,
+            data.fulfillmentType,
+            "fulfillmentType",
+          ),
+        }
+      : {}),
+    ...(data.cancellationReason !== undefined
+      ? { cancellationReason: data.cancellationReason || null }
+      : {}),
   };
 }

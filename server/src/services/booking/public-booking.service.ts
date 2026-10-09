@@ -1,10 +1,10 @@
 import {
   BookingActorType,
+  BookingSource,
   BookingStatus,
   ClientType,
   NoteVisibility,
   PaymentStatus,
-  Prisma,
   ServiceType,
 } from "../../generated/prisma/client.js";
 import { prisma } from "../../libs/prisma.js";
@@ -28,10 +28,17 @@ import {
   normalizeBookingResponse,
   normalizeInventoryItemForBookingResponse,
 } from "./booking-normalizer.service.ts";
-import { calculatePricing } from "./booking-pricing.service.ts";
+import {
+  assertBookingRules,
+  buildBookingPricingData,
+  calculatePricing,
+  getPricingContext,
+  serializePricing,
+} from "./booking-pricing.service.ts";
 import {
   normalizeEmail,
   validatePublicBookingData,
+  type ValidatedPublicBookingData,
 } from "./booking-validation.service.ts";
 
 type CreatePublicBookingQuoteInput = {
@@ -44,6 +51,9 @@ type CreatePublicBookingInput = {
   tenantId: string;
   tenantTimezone: string;
   data: any;
+  // Set by the server only (checkout drafts); never read from the request.
+  bookingStatus?: BookingStatus;
+  paymentStatus?: PaymentStatus;
 };
 
 type CreatePublicBookingCheckoutDraftInput = {
@@ -69,11 +79,54 @@ function normalizeMoney(value: unknown) {
   return Number(value || 0);
 }
 
+// Prices a public booking from tenant settings and the item. Prices sent by
+// the browser are ignored.
+async function pricePublicBooking({
+  tenantId,
+  validated,
+  inventoryItem,
+  selectedAddons,
+  data,
+}: {
+  tenantId: string;
+  validated: ValidatedPublicBookingData;
+  inventoryItem: Parameters<typeof calculatePricing>[0]["inventoryItem"];
+  selectedAddons: Parameters<typeof calculatePricing>[0]["selectedAddons"];
+  data: any;
+}) {
+  const context = await getPricingContext(tenantId);
+
+  assertBookingRules({
+    context,
+    fulfillmentType: validated.fulfillmentType,
+    deliveryDate: validated.deliveryDate,
+    pickupDate: validated.pickupDate,
+  });
+
+  return calculatePricing({
+    context,
+    inventoryItem,
+    selectedAddons,
+    fulfillmentType: validated.fulfillmentType,
+    destination: {
+      latitude: validated.latitude,
+      longitude: validated.longitude,
+    },
+    deliveryDate: validated.deliveryDate,
+    pickupDate: validated.pickupDate,
+    priorityDelivery: validated.priorityDelivery,
+    material: validated.material,
+  });
+}
+
 export async function createPublicBookingQuote({
   tenantId,
   data,
 }: CreatePublicBookingQuoteInput) {
-  const validated = validatePublicBookingData(data);
+  const validated = validatePublicBookingData(data, {
+    requireCustomer: false,
+    requireAddress: false,
+  });
 
   const inventoryItem = await findInventoryItemOrThrow({
     tenantId,
@@ -93,12 +146,12 @@ export async function createPublicBookingQuote({
     data,
   });
 
-  const pricing = calculatePricing({
+  const pricing = await pricePublicBooking({
+    tenantId,
+    validated,
     inventoryItem,
     selectedAddons,
     data,
-    deliveryDate: validated.deliveryDate,
-    pickupDate: validated.pickupDate,
   });
 
   return {
@@ -113,6 +166,8 @@ export async function createPublicBookingQuote({
       sizeUnit: inventoryItem.sizeUnit,
       basePrice: normalizeMoney(inventoryItem.basePrice),
       concretePrice: normalizeMoney(inventoryItem.concretePrice),
+      rentalDaysIncluded: inventoryItem.rentalDaysIncluded,
+      extraDayRate: normalizeMoney(inventoryItem.extraDayRate),
 
       // Temporary old frontend aliases.
       dumpsterId: inventoryItem.id,
@@ -121,16 +176,7 @@ export async function createPublicBookingQuote({
         ? Number(inventoryItem.sizeValue)
         : null,
     },
-    addons: selectedAddons.map((selectedAddon) => ({
-      id: selectedAddon.addon.id,
-      code: selectedAddon.addon.code,
-      name: selectedAddon.addon.name,
-      description: selectedAddon.addon.description,
-      price: normalizeMoney(selectedAddon.addon.price),
-      quantity: selectedAddon.quantity,
-      total: normalizeMoney(selectedAddon.addon.price) * selectedAddon.quantity,
-    })),
-    pricing,
+    pricing: serializePricing(pricing),
   };
 }
 
@@ -138,6 +184,8 @@ export async function createPublicBooking({
   tenantId,
   tenantTimezone,
   data,
+  bookingStatus = BookingStatus.QUOTE,
+  paymentStatus = PaymentStatus.UNPAID,
 }: CreatePublicBookingInput) {
   const validated = validatePublicBookingData(data);
 
@@ -159,12 +207,12 @@ export async function createPublicBooking({
     data,
   });
 
-  const pricing = calculatePricing({
+  const pricing = await pricePublicBooking({
+    tenantId,
+    validated,
     inventoryItem,
     selectedAddons,
     data,
-    deliveryDate: validated.deliveryDate,
-    pickupDate: validated.pickupDate,
   });
 
   const bookingNumber = await generateBookingNumber(tenantId);
@@ -212,9 +260,8 @@ export async function createPublicBooking({
         state: validated.state,
         zip: validated.zip,
 
-        latitude: data.latitude ?? null,
-        longitude: data.longitude ?? null,
-        distanceFromWarehouse: data.distanceFromWarehouse ?? null,
+        latitude: validated.latitude,
+        longitude: validated.longitude,
 
         placement: data.placement ?? null,
         instructions: data.instructions ?? null,
@@ -228,25 +275,15 @@ export async function createPublicBooking({
         deliveryDate: validated.deliveryDate,
         pickupDate: validated.pickupDate,
         pickupDateUnknown: validated.pickupDateUnknown,
-        rentalDaysIncluded: pricing.rentalDaysIncluded,
 
-        priorityDelivery: Boolean(data.priorityDelivery),
         deliveryTime: data.deliveryTime ? new Date(data.deliveryTime) : null,
         priorityDeliveryNote: data.priorityDeliveryNote ?? null,
 
-        bookingStatus: data.bookingStatus ?? BookingStatus.QUOTE,
-        paymentStatus: data.paymentStatus ?? PaymentStatus.UNPAID,
+        bookingStatus,
+        paymentStatus,
 
-        stripePaymentIntentId: data.stripePaymentIntentId ?? null,
-        stripePaymentStatus: data.stripePaymentStatus ?? null,
-
-        basePrice: new Prisma.Decimal(pricing.basePrice),
-        deliveryFee: new Prisma.Decimal(pricing.deliveryFee),
-        mileageFee: new Prisma.Decimal(pricing.mileageFee),
-        extraDaysFee: new Prisma.Decimal(pricing.extraDaysFee),
-        overageFee: new Prisma.Decimal(pricing.overageFee),
-        addonsTotal: new Prisma.Decimal(pricing.addonsTotal),
-        total: new Prisma.Decimal(pricing.total),
+        source: BookingSource.WEB,
+        ...buildBookingPricingData(pricing),
 
         quotedAt: new Date(),
       },
@@ -274,7 +311,7 @@ export async function createPublicBooking({
       tx,
       tenantId,
       bookingId: createdBooking.id,
-      selectedAddons,
+      addonLines: pricing.addonLines,
     });
 
     await tx.bookingHistory.create({
@@ -327,11 +364,9 @@ export async function createPublicBookingCheckoutDraft({
   const booking = await createPublicBooking({
     tenantId,
     tenantTimezone,
-    data: {
-      ...data,
-      bookingStatus: BookingStatus.PENDING_PAYMENT,
-      paymentStatus: PaymentStatus.PENDING,
-    },
+    data,
+    bookingStatus: BookingStatus.PENDING_PAYMENT,
+    paymentStatus: PaymentStatus.PENDING,
   });
 
   const fullBooking = await prisma.booking.findFirst({
@@ -391,12 +426,12 @@ export async function updatePublicBookingCheckoutDraft({
     data,
   });
 
-  const pricing = calculatePricing({
+  const pricing = await pricePublicBooking({
+    tenantId,
+    validated,
     inventoryItem,
     selectedAddons,
     data,
-    deliveryDate: validated.deliveryDate,
-    pickupDate: validated.pickupDate,
   });
 
   const clientType = data.clientType ?? ClientType.INDIVIDUAL;
@@ -439,9 +474,8 @@ export async function updatePublicBookingCheckoutDraft({
         state: validated.state,
         zip: validated.zip,
 
-        latitude: data.latitude ?? null,
-        longitude: data.longitude ?? null,
-        distanceFromWarehouse: data.distanceFromWarehouse ?? null,
+        latitude: validated.latitude,
+        longitude: validated.longitude,
 
         placement: data.placement ?? null,
         instructions: data.instructions ?? null,
@@ -455,22 +489,14 @@ export async function updatePublicBookingCheckoutDraft({
         deliveryDate: validated.deliveryDate,
         pickupDate: validated.pickupDate,
         pickupDateUnknown: validated.pickupDateUnknown,
-        rentalDaysIncluded: pricing.rentalDaysIncluded,
 
-        priorityDelivery: Boolean(data.priorityDelivery),
         deliveryTime: data.deliveryTime ? new Date(data.deliveryTime) : null,
         priorityDeliveryNote: data.priorityDeliveryNote ?? null,
 
         bookingStatus: BookingStatus.PENDING_PAYMENT,
         paymentStatus: PaymentStatus.PENDING,
 
-        basePrice: new Prisma.Decimal(pricing.basePrice),
-        deliveryFee: new Prisma.Decimal(pricing.deliveryFee),
-        mileageFee: new Prisma.Decimal(pricing.mileageFee),
-        extraDaysFee: new Prisma.Decimal(pricing.extraDaysFee),
-        overageFee: new Prisma.Decimal(pricing.overageFee),
-        addonsTotal: new Prisma.Decimal(pricing.addonsTotal),
-        total: new Prisma.Decimal(pricing.total),
+        ...buildBookingPricingData(pricing),
 
         quotedAt: new Date(),
       },
@@ -512,7 +538,7 @@ export async function updatePublicBookingCheckoutDraft({
       tx,
       tenantId,
       bookingId: existingBooking.id,
-      selectedAddons,
+      addonLines: pricing.addonLines,
     });
 
     await tx.bookingHistory.create({

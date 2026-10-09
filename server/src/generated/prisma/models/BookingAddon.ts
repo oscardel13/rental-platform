@@ -29,11 +29,13 @@ export type AggregateBookingAddon = {
 export type BookingAddonAvgAggregateOutputType = {
   addonPriceSnapshot: runtime.Decimal | null
   quantity: number | null
+  lineTotal: runtime.Decimal | null
 }
 
 export type BookingAddonSumAggregateOutputType = {
   addonPriceSnapshot: runtime.Decimal | null
   quantity: number | null
+  lineTotal: runtime.Decimal | null
 }
 
 export type BookingAddonMinAggregateOutputType = {
@@ -44,7 +46,9 @@ export type BookingAddonMinAggregateOutputType = {
   addonCodeSnapshot: string | null
   addonNameSnapshot: string | null
   addonPriceSnapshot: runtime.Decimal | null
+  addonPriceTypeSnapshot: $Enums.AddonPriceType | null
   quantity: number | null
+  lineTotal: runtime.Decimal | null
   createdAt: Date | null
 }
 
@@ -56,7 +60,9 @@ export type BookingAddonMaxAggregateOutputType = {
   addonCodeSnapshot: string | null
   addonNameSnapshot: string | null
   addonPriceSnapshot: runtime.Decimal | null
+  addonPriceTypeSnapshot: $Enums.AddonPriceType | null
   quantity: number | null
+  lineTotal: runtime.Decimal | null
   createdAt: Date | null
 }
 
@@ -68,7 +74,9 @@ export type BookingAddonCountAggregateOutputType = {
   addonCodeSnapshot: number
   addonNameSnapshot: number
   addonPriceSnapshot: number
+  addonPriceTypeSnapshot: number
   quantity: number
+  lineTotal: number
   createdAt: number
   _all: number
 }
@@ -77,11 +85,13 @@ export type BookingAddonCountAggregateOutputType = {
 export type BookingAddonAvgAggregateInputType = {
   addonPriceSnapshot?: true
   quantity?: true
+  lineTotal?: true
 }
 
 export type BookingAddonSumAggregateInputType = {
   addonPriceSnapshot?: true
   quantity?: true
+  lineTotal?: true
 }
 
 export type BookingAddonMinAggregateInputType = {
@@ -92,7 +102,9 @@ export type BookingAddonMinAggregateInputType = {
   addonCodeSnapshot?: true
   addonNameSnapshot?: true
   addonPriceSnapshot?: true
+  addonPriceTypeSnapshot?: true
   quantity?: true
+  lineTotal?: true
   createdAt?: true
 }
 
@@ -104,7 +116,9 @@ export type BookingAddonMaxAggregateInputType = {
   addonCodeSnapshot?: true
   addonNameSnapshot?: true
   addonPriceSnapshot?: true
+  addonPriceTypeSnapshot?: true
   quantity?: true
+  lineTotal?: true
   createdAt?: true
 }
 
@@ -116,7 +130,9 @@ export type BookingAddonCountAggregateInputType = {
   addonCodeSnapshot?: true
   addonNameSnapshot?: true
   addonPriceSnapshot?: true
+  addonPriceTypeSnapshot?: true
   quantity?: true
+  lineTotal?: true
   createdAt?: true
   _all?: true
 }
@@ -215,7 +231,9 @@ export type BookingAddonGroupByOutputType = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal
+  addonPriceTypeSnapshot: $Enums.AddonPriceType
   quantity: number
+  lineTotal: runtime.Decimal
   createdAt: Date
   _count: BookingAddonCountAggregateOutputType | null
   _avg: BookingAddonAvgAggregateOutputType | null
@@ -250,7 +268,9 @@ export type BookingAddonWhereInput = {
   addonCodeSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonNameSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonPriceSnapshot?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFilter<"BookingAddon"> | $Enums.AddonPriceType
   quantity?: Prisma.IntFilter<"BookingAddon"> | number
+  lineTotal?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"BookingAddon"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
   addon?: Prisma.XOR<Prisma.AddonNullableScalarRelationFilter, Prisma.AddonWhereInput> | null
@@ -264,7 +284,9 @@ export type BookingAddonOrderByWithRelationInput = {
   addonCodeSnapshot?: Prisma.SortOrder
   addonNameSnapshot?: Prisma.SortOrder
   addonPriceSnapshot?: Prisma.SortOrder
+  addonPriceTypeSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   booking?: Prisma.BookingOrderByWithRelationInput
   addon?: Prisma.AddonOrderByWithRelationInput
@@ -281,7 +303,9 @@ export type BookingAddonWhereUniqueInput = Prisma.AtLeast<{
   addonCodeSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonNameSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonPriceSnapshot?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFilter<"BookingAddon"> | $Enums.AddonPriceType
   quantity?: Prisma.IntFilter<"BookingAddon"> | number
+  lineTotal?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"BookingAddon"> | Date | string
   booking?: Prisma.XOR<Prisma.BookingScalarRelationFilter, Prisma.BookingWhereInput>
   addon?: Prisma.XOR<Prisma.AddonNullableScalarRelationFilter, Prisma.AddonWhereInput> | null
@@ -295,7 +319,9 @@ export type BookingAddonOrderByWithAggregationInput = {
   addonCodeSnapshot?: Prisma.SortOrder
   addonNameSnapshot?: Prisma.SortOrder
   addonPriceSnapshot?: Prisma.SortOrder
+  addonPriceTypeSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.BookingAddonCountOrderByAggregateInput
   _avg?: Prisma.BookingAddonAvgOrderByAggregateInput
@@ -315,7 +341,9 @@ export type BookingAddonScalarWhereWithAggregatesInput = {
   addonCodeSnapshot?: Prisma.StringWithAggregatesFilter<"BookingAddon"> | string
   addonNameSnapshot?: Prisma.StringWithAggregatesFilter<"BookingAddon"> | string
   addonPriceSnapshot?: Prisma.DecimalWithAggregatesFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeWithAggregatesFilter<"BookingAddon"> | $Enums.AddonPriceType
   quantity?: Prisma.IntWithAggregatesFilter<"BookingAddon"> | number
+  lineTotal?: Prisma.DecimalWithAggregatesFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BookingAddon"> | Date | string
 }
 
@@ -325,7 +353,9 @@ export type BookingAddonCreateInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   booking: Prisma.BookingCreateNestedOneWithoutAddonsInput
   addon?: Prisma.AddonCreateNestedOneWithoutBookingAddonsInput
@@ -339,7 +369,9 @@ export type BookingAddonUncheckedCreateInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -349,7 +381,9 @@ export type BookingAddonUpdateInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUpdateOneRequiredWithoutAddonsNestedInput
   addon?: Prisma.AddonUpdateOneWithoutBookingAddonsNestedInput
@@ -363,7 +397,9 @@ export type BookingAddonUncheckedUpdateInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -375,7 +411,9 @@ export type BookingAddonCreateManyInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -385,7 +423,9 @@ export type BookingAddonUpdateManyMutationInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -397,7 +437,9 @@ export type BookingAddonUncheckedUpdateManyInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -419,13 +461,16 @@ export type BookingAddonCountOrderByAggregateInput = {
   addonCodeSnapshot?: Prisma.SortOrder
   addonNameSnapshot?: Prisma.SortOrder
   addonPriceSnapshot?: Prisma.SortOrder
+  addonPriceTypeSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type BookingAddonAvgOrderByAggregateInput = {
   addonPriceSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
 }
 
 export type BookingAddonMaxOrderByAggregateInput = {
@@ -436,7 +481,9 @@ export type BookingAddonMaxOrderByAggregateInput = {
   addonCodeSnapshot?: Prisma.SortOrder
   addonNameSnapshot?: Prisma.SortOrder
   addonPriceSnapshot?: Prisma.SortOrder
+  addonPriceTypeSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -448,13 +495,16 @@ export type BookingAddonMinOrderByAggregateInput = {
   addonCodeSnapshot?: Prisma.SortOrder
   addonNameSnapshot?: Prisma.SortOrder
   addonPriceSnapshot?: Prisma.SortOrder
+  addonPriceTypeSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type BookingAddonSumOrderByAggregateInput = {
   addonPriceSnapshot?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
 }
 
 export type BookingAddonCreateNestedManyWithoutAddonInput = {
@@ -555,7 +605,9 @@ export type BookingAddonCreateWithoutAddonInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   booking: Prisma.BookingCreateNestedOneWithoutAddonsInput
 }
@@ -567,7 +619,9 @@ export type BookingAddonUncheckedCreateWithoutAddonInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -608,7 +662,9 @@ export type BookingAddonScalarWhereInput = {
   addonCodeSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonNameSnapshot?: Prisma.StringFilter<"BookingAddon"> | string
   addonPriceSnapshot?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFilter<"BookingAddon"> | $Enums.AddonPriceType
   quantity?: Prisma.IntFilter<"BookingAddon"> | number
+  lineTotal?: Prisma.DecimalFilter<"BookingAddon"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFilter<"BookingAddon"> | Date | string
 }
 
@@ -618,7 +674,9 @@ export type BookingAddonCreateWithoutBookingInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   addon?: Prisma.AddonCreateNestedOneWithoutBookingAddonsInput
 }
@@ -630,7 +688,9 @@ export type BookingAddonUncheckedCreateWithoutBookingInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -667,7 +727,9 @@ export type BookingAddonCreateManyAddonInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -677,7 +739,9 @@ export type BookingAddonUpdateWithoutAddonInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUpdateOneRequiredWithoutAddonsNestedInput
 }
@@ -689,7 +753,9 @@ export type BookingAddonUncheckedUpdateWithoutAddonInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -700,7 +766,9 @@ export type BookingAddonUncheckedUpdateManyWithoutAddonInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -711,7 +779,9 @@ export type BookingAddonCreateManyBookingInput = {
   addonCodeSnapshot: string
   addonNameSnapshot: string
   addonPriceSnapshot: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: $Enums.AddonPriceType
   quantity?: number
+  lineTotal?: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
 }
 
@@ -721,7 +791,9 @@ export type BookingAddonUpdateWithoutBookingInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   addon?: Prisma.AddonUpdateOneWithoutBookingAddonsNestedInput
 }
@@ -733,7 +805,9 @@ export type BookingAddonUncheckedUpdateWithoutBookingInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -744,7 +818,9 @@ export type BookingAddonUncheckedUpdateManyWithoutBookingInput = {
   addonCodeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonNameSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
   addonPriceSnapshot?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addonPriceTypeSnapshot?: Prisma.EnumAddonPriceTypeFieldUpdateOperationsInput | $Enums.AddonPriceType
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -758,7 +834,9 @@ export type BookingAddonSelect<ExtArgs extends runtime.Types.Extensions.Internal
   addonCodeSnapshot?: boolean
   addonNameSnapshot?: boolean
   addonPriceSnapshot?: boolean
+  addonPriceTypeSnapshot?: boolean
   quantity?: boolean
+  lineTotal?: boolean
   createdAt?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   addon?: boolean | Prisma.BookingAddon$addonArgs<ExtArgs>
@@ -772,7 +850,9 @@ export type BookingAddonSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   addonCodeSnapshot?: boolean
   addonNameSnapshot?: boolean
   addonPriceSnapshot?: boolean
+  addonPriceTypeSnapshot?: boolean
   quantity?: boolean
+  lineTotal?: boolean
   createdAt?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   addon?: boolean | Prisma.BookingAddon$addonArgs<ExtArgs>
@@ -786,7 +866,9 @@ export type BookingAddonSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   addonCodeSnapshot?: boolean
   addonNameSnapshot?: boolean
   addonPriceSnapshot?: boolean
+  addonPriceTypeSnapshot?: boolean
   quantity?: boolean
+  lineTotal?: boolean
   createdAt?: boolean
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   addon?: boolean | Prisma.BookingAddon$addonArgs<ExtArgs>
@@ -800,11 +882,13 @@ export type BookingAddonSelectScalar = {
   addonCodeSnapshot?: boolean
   addonNameSnapshot?: boolean
   addonPriceSnapshot?: boolean
+  addonPriceTypeSnapshot?: boolean
   quantity?: boolean
+  lineTotal?: boolean
   createdAt?: boolean
 }
 
-export type BookingAddonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "bookingId" | "addonId" | "addonCodeSnapshot" | "addonNameSnapshot" | "addonPriceSnapshot" | "quantity" | "createdAt", ExtArgs["result"]["bookingAddon"]>
+export type BookingAddonOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "bookingId" | "addonId" | "addonCodeSnapshot" | "addonNameSnapshot" | "addonPriceSnapshot" | "addonPriceTypeSnapshot" | "quantity" | "lineTotal" | "createdAt", ExtArgs["result"]["bookingAddon"]>
 export type BookingAddonInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   booking?: boolean | Prisma.BookingDefaultArgs<ExtArgs>
   addon?: boolean | Prisma.BookingAddon$addonArgs<ExtArgs>
@@ -832,7 +916,9 @@ export type $BookingAddonPayload<ExtArgs extends runtime.Types.Extensions.Intern
     addonCodeSnapshot: string
     addonNameSnapshot: string
     addonPriceSnapshot: runtime.Decimal
+    addonPriceTypeSnapshot: $Enums.AddonPriceType
     quantity: number
+    lineTotal: runtime.Decimal
     createdAt: Date
   }, ExtArgs["result"]["bookingAddon"]>
   composites: {}
@@ -1266,7 +1352,9 @@ export interface BookingAddonFieldRefs {
   readonly addonCodeSnapshot: Prisma.FieldRef<"BookingAddon", 'String'>
   readonly addonNameSnapshot: Prisma.FieldRef<"BookingAddon", 'String'>
   readonly addonPriceSnapshot: Prisma.FieldRef<"BookingAddon", 'Decimal'>
+  readonly addonPriceTypeSnapshot: Prisma.FieldRef<"BookingAddon", 'AddonPriceType'>
   readonly quantity: Prisma.FieldRef<"BookingAddon", 'Int'>
+  readonly lineTotal: Prisma.FieldRef<"BookingAddon", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"BookingAddon", 'DateTime'>
 }
     

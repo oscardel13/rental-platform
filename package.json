@@ -27,6 +27,10 @@
     "docker:migrate": "docker compose run --rm migrate",
     "docker:seed": "docker compose run --rm seed",
     "stripe:listen": "stripe listen --forward-to localhost:8000/stripe/webhook",
+    "db:start": "docker compose up -d postgres",
+    "db:stop": "docker compose stop postgres",
+    "db:logs": "docker compose logs -f postgres",
+    "prisma:studio": "prisma studio",
     "test": "npm run server:test"
   }
 }

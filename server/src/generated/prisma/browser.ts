@@ -38,6 +38,11 @@ export type BookingAddon = Prisma.BookingAddonModel
  */
 export type BookingNote = Prisma.BookingNoteModel
 /**
+ * Model BookingNoteView
+ * 
+ */
+export type BookingNoteView = Prisma.BookingNoteViewModel
+/**
  * Model BookingHistory
  * 
  */
@@ -68,15 +73,35 @@ export type Worker = Prisma.WorkerModel
  */
 export type InventoryItem = Prisma.InventoryItemModel
 /**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel
+/**
  * Model Tenant
  * 
  */
 export type Tenant = Prisma.TenantModel
 /**
+ * Model TenantDomain
+ * 
+ */
+export type TenantDomain = Prisma.TenantDomainModel
+/**
  * Model TenantMembership
  * 
  */
 export type TenantMembership = Prisma.TenantMembershipModel
+/**
+ * Model TenantSettings
+ * 
+ */
+export type TenantSettings = Prisma.TenantSettingsModel
 /**
  * Model UserAuthProvider
  * 

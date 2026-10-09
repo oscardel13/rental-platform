@@ -165,7 +165,8 @@ export const dumpsterBookingsData: DumpsterBookingSeedData[] = [
     bookingStatus: BookingStatus.SCHEDULED,
     paymentStatus: PaymentStatus.PAID,
 
-    addonCodes: ["concreteSurcharge", "drivewayProtection"],
+    // Concrete is now a material fee, not an add-on.
+    addonCodes: ["drivewayProtection"],
   },
 
   {

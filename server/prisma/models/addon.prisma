@@ -10,6 +10,11 @@ model Addon {
   price       Decimal @db.Decimal(10, 2)
   isActive    Boolean @default(true)
 
+  // FLAT = price x quantity; PER_DAY = price x quantity x rental days.
+  priceType AddonPriceType @default(FLAT)
+  // Only offered for this inventory category; null = all categories.
+  category  InventoryCategory?
+
   bookingAddons BookingAddon[]
 
   createdAt DateTime @default(now())

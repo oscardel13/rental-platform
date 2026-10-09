@@ -45,6 +45,12 @@ export const createAddon = async (tenantId: string, data: any) => {
       name: data.name,
       description: data.description ?? null,
       price: data.price ?? 0,
+      ...(data.priceType === "FLAT" || data.priceType === "PER_DAY"
+        ? { priceType: data.priceType }
+        : {}),
+      ...(data.category !== undefined
+        ? { category: data.category || null }
+        : {}),
       isActive: data.isActive ?? true,
     },
   });
@@ -73,6 +79,12 @@ export const updateAddon = async (tenantId: string, id: string, data: any) => {
         ? { description: data.description }
         : {}),
       ...(data.price !== undefined ? { price: data.price } : {}),
+      ...(data.priceType === "FLAT" || data.priceType === "PER_DAY"
+        ? { priceType: data.priceType }
+        : {}),
+      ...(data.category !== undefined
+        ? { category: data.category || null }
+        : {}),
       ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
     },
   });

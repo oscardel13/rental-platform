@@ -3,6 +3,17 @@ import type { PlatformRole, TenantRole } from "../generated/prisma/client.js";
 
 declare global {
   namespace Express {
+    interface Request {
+      // Set by resolveTenant from the request's Origin / Host.
+      tenant?: {
+        id: string;
+        slug: string;
+        name: string;
+        timezone: string;
+        status: import("../generated/prisma/client.js").TenantStatus;
+      } | null;
+    }
+
     interface User {
       id: string;
       email: string | null;

@@ -23,8 +23,7 @@ export const HttpStripeWebhook = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Stripe webhook error:", error);
 
-    res
-      .status(400)
-      .send(error instanceof Error ? error.message : "Webhook error");
+    // 400 tells Stripe to retry later; details stay in our logs.
+    res.status(400).send("Webhook error");
   }
 };

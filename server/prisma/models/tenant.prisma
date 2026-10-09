@@ -20,8 +20,16 @@ model Tenant {
   latitude  Decimal? @db.Decimal(10, 7)
   longitude Decimal? @db.Decimal(10, 7)
 
+  // Platform billing: the tenant as a customer of the SaaS subscription.
   stripeCustomerId     String?
   stripeSubscriptionId String?
+
+  // Stripe Connect: the tenant's connected account (acct_...) that receives
+  // booking payments as direct charges.
+  stripeAccountId String? @unique
+
+  settings TenantSettings?
+  domains  TenantDomain[]
 
   memberships TenantMembership[]
 
@@ -36,6 +44,27 @@ model Tenant {
   updatedAt DateTime @updatedAt
 
   @@index([status])
+}
+
+// Hostnames that belong to a tenant: their site ("ironpeakservices.com",
+// "www.ironpeakservices.com") and API ("api.ironpeakservices.com"), all
+// pointed at the platform's ALB. The API resolves the tenant from the
+// request's Origin/Host and allows CORS for these, so adding a tenant needs
+// no restart. Only verified rows are trusted.
+model TenantDomain {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Lowercase host only: no scheme, port or path.
+  hostname  String    @unique
+  isPrimary Boolean   @default(false)
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
 }
 
 model TenantMembership {
@@ -57,4 +86,35 @@ model TenantMembership {
   @@index([tenantId])
   @@index([tenantId, role])
   @@index([tenantId, isActive])
+}
+
+// Per-tenant pricing and booking rules. The server prices every booking from
+// these (never from amounts sent by the browser). Delivery distance is
+// measured from Tenant.latitude / Tenant.longitude.
+model TenantSettings {
+  id       String @id @default(cuid())
+  tenantId String @unique
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Fulfillment
+  allowDelivery       Boolean @default(true)
+  allowCustomerPickup Boolean @default(false)
+
+  // Delivery pricing: flat fee + per-mile beyond the free radius.
+  deliveryFee         Decimal  @default(0) @db.Decimal(10, 2)
+  freeDeliveryMiles   Decimal  @default(0) @db.Decimal(10, 2)
+  perMileRate         Decimal  @default(0) @db.Decimal(10, 2)
+  maxDeliveryMiles    Decimal? @db.Decimal(10, 2) // null = no limit
+  priorityDeliveryFee Decimal  @default(0) @db.Decimal(10, 2)
+
+  // Booking rules
+  minNoticeDays Int @default(1)
+  maxRentalDays Int @default(30)
+
+  // Sales tax as a fraction (0.0825 = 8.25%), applied to the subtotal.
+  taxRate Decimal @default(0) @db.Decimal(6, 5)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

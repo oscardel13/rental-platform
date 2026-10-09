@@ -132,3 +132,46 @@ enum InventoryPattern {
   SPLIT
   DOT
 }
+
+enum FulfillmentType {
+  DELIVERY
+  CUSTOMER_PICKUP
+}
+
+enum BookingSource {
+  WEB
+  ADMIN
+  PHONE
+}
+
+enum PaymentType {
+  CHARGE
+  REFUND
+}
+
+enum PaymentTransactionStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+// What a booking note is for. Requests come from customers and need an
+// answer from staff.
+enum BookingNoteType {
+  NOTE
+  CHANGE_REQUEST
+  RESCHEDULE_REQUEST
+}
+
+enum BookingNoteRequestStatus {
+  OPEN
+  APPROVED
+  DECLINED
+  RESOLVED
+}
+
+enum AddonPriceType {
+  FLAT
+  PER_DAY
+}

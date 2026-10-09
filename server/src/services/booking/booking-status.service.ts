@@ -6,12 +6,26 @@ import {
 
 import { createServiceError } from "../../utils/error.utils.ts";
 
+function parseStatus<T extends string>(
+  enumObject: Record<string, T>,
+  value: string | null | undefined,
+  field: string,
+): T | null {
+  if (!value) return null;
+
+  if ((Object.values(enumObject) as string[]).includes(value)) {
+    return value as T;
+  }
+
+  throw createServiceError(`Invalid ${field}: ${value}.`, 400);
+}
+
 export function normalizeBookingStatusValue(value?: string | null) {
-  return value ? (value as BookingStatus) : null;
+  return parseStatus(BookingStatus, value, "bookingStatus");
 }
 
 export function normalizePaymentStatusValue(value?: string | null) {
-  return value ? (value as PaymentStatus) : null;
+  return parseStatus(PaymentStatus, value, "paymentStatus");
 }
 
 export function buildBookingStatusUpdateData({

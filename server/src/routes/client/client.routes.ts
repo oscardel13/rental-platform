@@ -2,7 +2,6 @@
 import { Router } from "express";
 
 import {
-  requireAdmin,
   requireClientDashboard,
   requireClientProfile,
 } from "./client.middleware.js";
@@ -13,7 +12,9 @@ import {
   HttpGetClientBookingById,
   HttpCreateClientBookingNote,
   HttpCreateClientBookingChangeRequest,
-  HttpGetClientById,
+  HttpCreateClientBookingRescheduleRequest,
+  HttpMarkClientBookingNotesRead,
+  HttpPreviewClientBookingReschedule,
 } from "./client.controller.js";
 
 const ClientRouter = Router();
@@ -49,6 +50,26 @@ ClientRouter.post(
   HttpCreateClientBookingChangeRequest,
 );
 
-ClientRouter.get("/:id", requireAdmin, HttpGetClientById);
+ClientRouter.post(
+  "/bookings/:id/notes/read",
+  requireClientDashboard,
+  requireClientProfile,
+  HttpMarkClientBookingNotesRead,
+);
+
+// Check new dates (availability + new price) before asking to reschedule
+ClientRouter.get(
+  "/bookings/:id/reschedule/preview",
+  requireClientDashboard,
+  requireClientProfile,
+  HttpPreviewClientBookingReschedule,
+);
+
+ClientRouter.post(
+  "/bookings/:id/reschedule",
+  requireClientDashboard,
+  requireClientProfile,
+  HttpCreateClientBookingRescheduleRequest,
+);
 
 export default ClientRouter;

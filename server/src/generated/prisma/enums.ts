@@ -190,3 +190,65 @@ export const InventoryPattern = {
 } as const
 
 export type InventoryPattern = (typeof InventoryPattern)[keyof typeof InventoryPattern]
+
+
+export const FulfillmentType = {
+  DELIVERY: 'DELIVERY',
+  CUSTOMER_PICKUP: 'CUSTOMER_PICKUP'
+} as const
+
+export type FulfillmentType = (typeof FulfillmentType)[keyof typeof FulfillmentType]
+
+
+export const BookingSource = {
+  WEB: 'WEB',
+  ADMIN: 'ADMIN',
+  PHONE: 'PHONE'
+} as const
+
+export type BookingSource = (typeof BookingSource)[keyof typeof BookingSource]
+
+
+export const PaymentType = {
+  CHARGE: 'CHARGE',
+  REFUND: 'REFUND'
+} as const
+
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
+
+
+export const PaymentTransactionStatus = {
+  PENDING: 'PENDING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type PaymentTransactionStatus = (typeof PaymentTransactionStatus)[keyof typeof PaymentTransactionStatus]
+
+
+export const BookingNoteType = {
+  NOTE: 'NOTE',
+  CHANGE_REQUEST: 'CHANGE_REQUEST',
+  RESCHEDULE_REQUEST: 'RESCHEDULE_REQUEST'
+} as const
+
+export type BookingNoteType = (typeof BookingNoteType)[keyof typeof BookingNoteType]
+
+
+export const BookingNoteRequestStatus = {
+  OPEN: 'OPEN',
+  APPROVED: 'APPROVED',
+  DECLINED: 'DECLINED',
+  RESOLVED: 'RESOLVED'
+} as const
+
+export type BookingNoteRequestStatus = (typeof BookingNoteRequestStatus)[keyof typeof BookingNoteRequestStatus]
+
+
+export const AddonPriceType = {
+  FLAT: 'FLAT',
+  PER_DAY: 'PER_DAY'
+} as const
+
+export type AddonPriceType = (typeof AddonPriceType)[keyof typeof AddonPriceType]

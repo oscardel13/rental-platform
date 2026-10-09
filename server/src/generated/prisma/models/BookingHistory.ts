@@ -399,10 +399,6 @@ export type BookingHistoryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type EnumBookingActorTypeFieldUpdateOperationsInput = {
-  set?: $Enums.BookingActorType
-}
-
 export type BookingHistoryCreateNestedManyWithoutBookingInput = {
   create?: Prisma.XOR<Prisma.BookingHistoryCreateWithoutBookingInput, Prisma.BookingHistoryUncheckedCreateWithoutBookingInput> | Prisma.BookingHistoryCreateWithoutBookingInput[] | Prisma.BookingHistoryUncheckedCreateWithoutBookingInput[]
   connectOrCreate?: Prisma.BookingHistoryCreateOrConnectWithoutBookingInput | Prisma.BookingHistoryCreateOrConnectWithoutBookingInput[]

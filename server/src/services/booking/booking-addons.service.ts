@@ -1,7 +1,13 @@
-import { Prisma } from "../../generated/prisma/client.ts";
+import {
+  AddonPriceType,
+  InventoryCategory,
+  Prisma,
+} from "../../generated/prisma/client.ts";
 import { prisma } from "../../libs/prisma.ts";
 
 import { createServiceError } from "../../utils/error.utils.ts";
+
+import type { PricedAddonLine } from "./booking-pricing.service.ts";
 
 export type SelectedAddonInput = {
   addonId: string | null;
@@ -16,16 +22,33 @@ export type SelectedAddon = {
     name: string;
     description: string | null;
     price: number | string | Prisma.Decimal | null;
+    priceType: AddonPriceType;
+    category: InventoryCategory | null;
   };
   quantity: number;
 };
 
-function normalizeMoney(value: unknown) {
-  return Number(value || 0);
-}
+// Reserved toggles that live on the booking, not in the add-on catalog.
+const NON_CATALOG_ADDON_KEYS = new Set(["priorityDelivery"]);
 
+/**
+ * Accepts either an array (["addonId"], [{ code, quantity }]) or the booking
+ * form's toggle map ({ drivewayProtection: true, priorityDelivery: false }),
+ * where each key is an add-on code.
+ */
 function getSelectedAddonInputs(data: any): SelectedAddonInput[] {
-  const rawAddons = Array.isArray(data?.addons) ? data.addons : [];
+  const rawAddons = Array.isArray(data?.addons)
+    ? data.addons
+    : data?.addons && typeof data.addons === "object"
+      ? Object.entries(data.addons)
+          .filter(
+            ([code, value]) => value && !NON_CATALOG_ADDON_KEYS.has(code),
+          )
+          .map(([code, value]) => ({
+            code,
+            quantity: typeof value === "number" ? value : 1,
+          }))
+      : [];
 
   return rawAddons
     .map((addon: any): SelectedAddonInput => {
@@ -115,27 +138,29 @@ export async function createBookingAddonRows({
   tx,
   tenantId,
   bookingId,
-  selectedAddons,
+  addonLines,
 }: {
   tx: Prisma.TransactionClient;
   tenantId: string;
   bookingId: string;
-  selectedAddons: SelectedAddon[];
+  addonLines: PricedAddonLine[];
 }) {
-  for (const selectedAddon of selectedAddons) {
+  for (const line of addonLines) {
+    const { addon, quantity } = line.selectedAddon;
+
     await tx.bookingAddon.create({
       data: {
         tenantId,
         bookingId,
-        addonId: selectedAddon.addon.id,
+        addonId: addon.id,
 
-        addonCodeSnapshot: selectedAddon.addon.code,
-        addonNameSnapshot: selectedAddon.addon.name,
-        addonPriceSnapshot: new Prisma.Decimal(
-          normalizeMoney(selectedAddon.addon.price),
-        ),
+        addonCodeSnapshot: addon.code,
+        addonNameSnapshot: addon.name,
+        addonPriceSnapshot: new Prisma.Decimal(Number(addon.price || 0)),
+        addonPriceTypeSnapshot: line.priceType,
 
-        quantity: selectedAddon.quantity,
+        quantity,
+        lineTotal: new Prisma.Decimal(line.lineTotal),
       },
     });
   }

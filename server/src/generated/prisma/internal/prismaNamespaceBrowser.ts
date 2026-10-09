@@ -55,14 +55,19 @@ export const ModelName = {
   BookingInventoryItem: 'BookingInventoryItem',
   BookingAddon: 'BookingAddon',
   BookingNote: 'BookingNote',
+  BookingNoteView: 'BookingNoteView',
   BookingHistory: 'BookingHistory',
   Booking: 'Booking',
   Client: 'Client',
   Driver: 'Driver',
   Worker: 'Worker',
   InventoryItem: 'InventoryItem',
+  Payment: 'Payment',
+  Session: 'Session',
   Tenant: 'Tenant',
+  TenantDomain: 'TenantDomain',
   TenantMembership: 'TenantMembership',
+  TenantSettings: 'TenantSettings',
   UserAuthProvider: 'UserAuthProvider',
   User: 'User'
 } as const
@@ -91,6 +96,8 @@ export const AddonScalarFieldEnum = {
   description: 'description',
   price: 'price',
   isActive: 'isActive',
+  priceType: 'priceType',
+  category: 'category',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -126,7 +133,9 @@ export const BookingAddonScalarFieldEnum = {
   addonCodeSnapshot: 'addonCodeSnapshot',
   addonNameSnapshot: 'addonNameSnapshot',
   addonPriceSnapshot: 'addonPriceSnapshot',
+  addonPriceTypeSnapshot: 'addonPriceTypeSnapshot',
   quantity: 'quantity',
+  lineTotal: 'lineTotal',
   createdAt: 'createdAt'
 } as const
 
@@ -138,12 +147,35 @@ export const BookingNoteScalarFieldEnum = {
   tenantId: 'tenantId',
   bookingId: 'bookingId',
   visibility: 'visibility',
+  type: 'type',
+  title: 'title',
   body: 'body',
+  authorType: 'authorType',
+  authorUserId: 'authorUserId',
+  authorLabel: 'authorLabel',
+  requestStatus: 'requestStatus',
+  requestedDeliveryDate: 'requestedDeliveryDate',
+  requestedPickupDate: 'requestedPickupDate',
+  requestedPickupDateUnknown: 'requestedPickupDateUnknown',
+  resolvedAt: 'resolvedAt',
+  resolvedByUserId: 'resolvedByUserId',
+  resolutionNote: 'resolutionNote',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type BookingNoteScalarFieldEnum = (typeof BookingNoteScalarFieldEnum)[keyof typeof BookingNoteScalarFieldEnum]
+
+
+export const BookingNoteViewScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  noteId: 'noteId',
+  userId: 'userId',
+  viewedAt: 'viewedAt'
+} as const
+
+export type BookingNoteViewScalarFieldEnum = (typeof BookingNoteViewScalarFieldEnum)[keyof typeof BookingNoteViewScalarFieldEnum]
 
 
 export const BookingHistoryScalarFieldEnum = {
@@ -168,6 +200,10 @@ export const BookingScalarFieldEnum = {
   clientId: 'clientId',
   serviceType: 'serviceType',
   projectType: 'projectType',
+  fulfillmentType: 'fulfillmentType',
+  source: 'source',
+  material: 'material',
+  createdByUserId: 'createdByUserId',
   customerName: 'customerName',
   customerPhone: 'customerPhone',
   customerEmail: 'customerEmail',
@@ -204,10 +240,21 @@ export const BookingScalarFieldEnum = {
   confirmedAt: 'confirmedAt',
   basePrice: 'basePrice',
   deliveryFee: 'deliveryFee',
+  billableMiles: 'billableMiles',
+  perMileRate: 'perMileRate',
   mileageFee: 'mileageFee',
+  priorityDeliveryFee: 'priorityDeliveryFee',
+  extraDays: 'extraDays',
+  extraDayRate: 'extraDayRate',
   extraDaysFee: 'extraDaysFee',
+  materialFee: 'materialFee',
   overageFee: 'overageFee',
   addonsTotal: 'addonsTotal',
+  discountAmount: 'discountAmount',
+  discountReason: 'discountReason',
+  subtotal: 'subtotal',
+  taxRate: 'taxRate',
+  taxAmount: 'taxAmount',
   total: 'total',
   quotedAt: 'quotedAt',
   scheduledAt: 'scheduledAt',
@@ -215,6 +262,7 @@ export const BookingScalarFieldEnum = {
   pickedUpAt: 'pickedUpAt',
   cancelledAt: 'cancelledAt',
   completedAt: 'completedAt',
+  cancellationReason: 'cancellationReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -292,11 +340,42 @@ export const InventoryItemScalarFieldEnum = {
   isActive: 'isActive',
   basePrice: 'basePrice',
   concretePrice: 'concretePrice',
+  rentalDaysIncluded: 'rentalDaysIncluded',
+  extraDayRate: 'extraDayRate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type InventoryItemScalarFieldEnum = (typeof InventoryItemScalarFieldEnum)[keyof typeof InventoryItemScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  bookingId: 'bookingId',
+  type: 'type',
+  status: 'status',
+  amount: 'amount',
+  currency: 'currency',
+  stripePaymentIntentId: 'stripePaymentIntentId',
+  stripeChargeId: 'stripeChargeId',
+  stripeRefundId: 'stripeRefundId',
+  failureMessage: 'failureMessage',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const SessionScalarFieldEnum = {
+  sid: 'sid',
+  sess: 'sess',
+  expire: 'expire'
+} as const
+
+export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
 
 
 export const TenantScalarFieldEnum = {
@@ -318,11 +397,25 @@ export const TenantScalarFieldEnum = {
   longitude: 'longitude',
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
+  stripeAccountId: 'stripeAccountId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+export const TenantDomainScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  hostname: 'hostname',
+  isPrimary: 'isPrimary',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantDomainScalarFieldEnum = (typeof TenantDomainScalarFieldEnum)[keyof typeof TenantDomainScalarFieldEnum]
 
 
 export const TenantMembershipScalarFieldEnum = {
@@ -336,6 +429,26 @@ export const TenantMembershipScalarFieldEnum = {
 } as const
 
 export type TenantMembershipScalarFieldEnum = (typeof TenantMembershipScalarFieldEnum)[keyof typeof TenantMembershipScalarFieldEnum]
+
+
+export const TenantSettingsScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  allowDelivery: 'allowDelivery',
+  allowCustomerPickup: 'allowCustomerPickup',
+  deliveryFee: 'deliveryFee',
+  freeDeliveryMiles: 'freeDeliveryMiles',
+  perMileRate: 'perMileRate',
+  maxDeliveryMiles: 'maxDeliveryMiles',
+  priorityDeliveryFee: 'priorityDeliveryFee',
+  minNoticeDays: 'minNoticeDays',
+  maxRentalDays: 'maxRentalDays',
+  taxRate: 'taxRate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantSettingsScalarFieldEnum = (typeof TenantSettingsScalarFieldEnum)[keyof typeof TenantSettingsScalarFieldEnum]
 
 
 export const UserAuthProviderScalarFieldEnum = {
@@ -384,6 +497,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
