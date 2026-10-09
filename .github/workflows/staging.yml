@@ -89,13 +89,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copy compose file to staging EC2
+      - name: Copy compose file and scripts to staging EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.STAGING_EC2_HOST }}
           username: ${{ secrets.STAGING_EC2_USER }}
           key: ${{ secrets.STAGING_EC2_SSH_KEY }}
-          source: docker-compose.staging.yml
+          source: docker-compose.staging.yml,scripts/backup-postgres.sh,scripts/restore-postgres.sh
           target: /opt/rental-platform
 
       - name: SSH into staging EC2 and deploy

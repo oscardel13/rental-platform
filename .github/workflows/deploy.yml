@@ -90,14 +90,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Keep the server's compose file in sync with the repo.
-      - name: Copy compose file to EC2
+      # Keep the server's compose file and backup scripts in sync with the repo.
+      - name: Copy compose file and scripts to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: docker-compose.prod.yml
+          source: docker-compose.prod.yml,scripts/backup-postgres.sh,scripts/restore-postgres.sh
           target: /opt/rental-platform
 
       - name: SSH into EC2 and deploy
