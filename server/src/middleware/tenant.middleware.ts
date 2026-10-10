@@ -100,7 +100,12 @@ export function requireActiveTenant(
     });
   }
 
-  if (!isTenantUsable(tenant.status)) {
+  // Super admins can still open a suspended/canceled tenant (support).
+  const isSuperAdmin =
+    (req.user as { platformRole?: string } | undefined)?.platformRole ===
+    "SUPER_ADMIN";
+
+  if (!isTenantUsable(tenant.status) && !isSuperAdmin) {
     return res.status(403).json({
       error: `${tenant.name} isn't taking bookings online right now.`,
       code: "TENANT_INACTIVE",

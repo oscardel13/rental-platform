@@ -21,17 +21,14 @@ export const prodTenantsData = [
     zip: "80640",
     country: "US",
 
-    // TODO(prod): confirm. Estimated from the Denver street grid; check by
-    // right-clicking the yard in Google Maps (first number is latitude).
-    // Mileage is measured from here, so it should be on the property.
+    // Yard location from Google Maps. Delivery mileage is measured from here.
     latitude: 39.903201 as number | null,
     longitude: -104.858805 as number | null,
 
     stripeCustomerId: null,
     stripeSubscriptionId: null,
-    // TODO(prod): confirm this is the LIVE-mode connected account and that
-    // Iron Peak has finished Stripe onboarding (charges_enabled = true).
-    stripeAccountId: "acct_1UNOUGPkanTk69mP",
+    // Iron Peak's Stripe Connect account (booking payments go here).
+    stripeAccountId: "acct_1UO4PBBofx4RYM5q",
   },
 ];
 
@@ -42,31 +39,24 @@ export const prodTenantSettingsData = [
     tenantId: IRON_PEAK_TENANT_ID,
 
     allowDelivery: true,
-    // TODO(prod): does Iron Peak let customers pick up from the yard?
+    // Off for liability reasons; deliveries only.
     allowCustomerPickup: false,
 
-    // TODO(prod): flat delivery fee charged on every delivery (0 if delivery
-    // is baked into the item price).
+    // Delivery is included in the rental price; first 20 miles free, then
+    // $2/mile.
     deliveryFee: 0,
-    // Current site copy: first 20 miles free, $2/mile after.
-    // TODO(prod): confirm 20 miles and $2/mile.
     freeDeliveryMiles: 20,
     perMileRate: 2,
     // Furthest Iron Peak delivers (straight-line miles from the yard).
     maxDeliveryMiles: 60 as number | null,
-    // TODO(prod): price of the "priority delivery" option (was $49.99 as a
-    // commented-out add-on).
+    // 0 = priority delivery isn't offered (hidden on the booking form).
     priorityDeliveryFee: 0,
 
-    // TODO(prod): how many days ahead a booking must be made (1 = no
-    // same-day bookings).
+    // Book at least 1 day ahead (no same-day); up to 30 days per booking.
     minNoticeDays: 1,
-    // TODO(prod): longest rental allowed in one booking.
     maxRentalDays: 30,
 
-    // TODO(prod): sales tax as a fraction (0.0825 = 8.25%). Ask their
-    // accountant whether dumpster rental is taxable where they operate;
-    // 0 = no tax line.
+    // Sales tax as a fraction (0.0825 = 8.25%). 0 for now = no tax line.
     taxRate: 0,
   },
 ];
@@ -75,7 +65,6 @@ export const prodTenantSettingsData = [
 // resolves the tenant from these, so every host the site or API is served
 // from must be listed. Lowercase, no https:// or path.
 export const prodTenantDomainsData = [
-  // TODO(prod): confirm the live site hostnames.
   {
     tenantId: IRON_PEAK_TENANT_ID,
     hostname: "iron-peak-services.com",
@@ -86,7 +75,7 @@ export const prodTenantDomainsData = [
     hostname: "www.iron-peak-services.com",
     isPrimary: false,
   },
-  // TODO(prod): the API hostname for this tenant (e.g. api.iron-peak-services.com).
+  // Prod API host.
   {
     tenantId: IRON_PEAK_TENANT_ID,
     hostname: "api.iron-peak-services.com",
@@ -94,14 +83,5 @@ export const prodTenantDomainsData = [
   },
 ];
 
-export const TENANTS_TODOS = [
-  "tenant domains: confirm site + API hostnames",
-  "tenants: confirm yard latitude/longitude (estimated from the address)",
-  "tenants: confirm live-mode Stripe connected account + onboarding done",
-  "tenant settings: allow customer pickup?",
-  "tenant settings: flat delivery fee",
-  "tenant settings: confirm free radius (20 mi) and per-mile rate ($2)",
-  "tenant settings: priority delivery fee",
-  "tenant settings: min notice days / max rental days",
-  "tenant settings: sales tax rate",
-];
+// Confirmed with Iron Peak.
+export const TENANTS_TODOS: string[] = [];

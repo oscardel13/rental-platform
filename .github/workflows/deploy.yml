@@ -122,6 +122,10 @@ jobs:
             # Deploy exactly this commit's image (see IMAGE_TAG in compose).
             export IMAGE_TAG
 
+            # Remember the deployed tag: compose reads .env automatically, so
+            # manual commands on the server (seed, restart) use this image.
+            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+
             docker compose -f docker-compose.prod.yml pull migrate server
 
             # Migrations first; a failed migration stops the deploy before

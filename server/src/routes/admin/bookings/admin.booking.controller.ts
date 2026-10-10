@@ -74,7 +74,9 @@ function requireTenantId(req: Request) {
 }
 
 function getActorLabel(req: Request) {
-  return req.user?.name || req.user?.email || "Admin";
+  const label = req.user?.name || req.user?.email || "Admin";
+
+  return req.user?.isPlatformAdmin ? `${label} (platform admin)` : label;
 }
 
 export const HttpCreateAdminBooking = async (req: Request, res: Response) => {

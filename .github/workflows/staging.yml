@@ -118,6 +118,10 @@ jobs:
 
             export IMAGE_TAG
 
+            # Remember the deployed tag: compose reads .env automatically, so
+            # manual commands on the server (seed, restart) use this image.
+            echo "IMAGE_TAG=$IMAGE_TAG" > .env
+
             docker compose -f docker-compose.staging.yml pull migrate server
 
             docker compose -f docker-compose.staging.yml run --rm migrate

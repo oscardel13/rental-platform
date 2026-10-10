@@ -29,6 +29,9 @@ declare global {
 
       clientId: string | null;
 
+      // Platform super admin acting inside a tenant (see requireTenantRole).
+      isPlatformAdmin?: boolean;
+
       client?: {
         id: string;
         displayName: string | null;
