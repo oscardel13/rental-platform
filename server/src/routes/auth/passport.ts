@@ -32,6 +32,8 @@ export const config = {
 };
 
 export type AuthenticatedUser = {
+  // True for platform super admins acting inside a tenant.
+  isPlatformAdmin?: boolean;
   id: string;
   email: string | null;
   name?: string | null;
@@ -76,39 +78,15 @@ function normalizeEmail(email?: string | null) {
   return email?.trim().toLowerCase() || null;
 }
 
-function getEmailsFromEnv(value?: string) {
-  return String(value || "")
-    .split(",")
-    .map((email) => normalizeEmail(email))
-    .filter(Boolean) as string[];
-}
-
-const SUPER_ADMIN_EMAILS = new Set(
-  getEmailsFromEnv(process.env.SUPER_ADMIN_EMAILS),
-);
-
-function getEnvTenantRole(email?: string | null) {
-  const normalizedEmail = normalizeEmail(email);
-
-  if (!normalizedEmail) return null;
-
-  if (SUPER_ADMIN_EMAILS.has(normalizedEmail)) {
-    return TenantRole.OWNER;
-  }
-
-  return null;
-}
-
-function getPlatformRole(email?: string | null) {
-  const normalizedEmail = normalizeEmail(email);
-
-  if (!normalizedEmail) return PlatformRole.USER;
-
-  if (SUPER_ADMIN_EMAILS.has(normalizedEmail)) {
-    return PlatformRole.SUPER_ADMIN;
-  }
-
-  return PlatformRole.USER;
+/**
+ * Platform super admins (User.platformRole = SUPER_ADMIN, set in the seed or
+ * database, never from env) can sign in to and manage any tenant without a
+ * membership. Inside a tenant they act with owner rights.
+ */
+export function isPlatformSuperAdmin(user: {
+  platformRole?: PlatformRole | null;
+}) {
+  return user.platformRole === PlatformRole.SUPER_ADMIN;
 }
 
 function isAdminRole(role: TenantRole) {
@@ -134,8 +112,14 @@ function getStrongestTenantRole(
 }
 
 // Login is always for one tenant: the one whose site started it.
-async function getLoginTenant(tenantId: string) {
-  const tenant = await getUsableTenantById(tenantId);
+// Super admins may also sign in to an inactive tenant (support).
+async function getLoginTenant(
+  tenantId: string,
+  { allowInactive = false }: { allowInactive?: boolean } = {},
+) {
+  const tenant = allowInactive
+    ? await prisma.tenant.findUnique({ where: { id: tenantId } })
+    : await getUsableTenantById(tenantId);
 
   if (!tenant) {
     throw new Error("This business account isn't active.");
@@ -286,51 +270,6 @@ async function getExistingTenantMembership({
   });
 }
 
-async function createTenantMembership({
-  userId,
-  tenantId,
-  role,
-}: {
-  userId: string;
-  tenantId: string;
-  role: TenantRole;
-}) {
-  return prisma.tenantMembership.create({
-    data: {
-      user: {
-        connect: {
-          id: userId,
-        },
-      },
-      tenant: {
-        connect: {
-          id: tenantId,
-        },
-      },
-      role,
-      isActive: true,
-    },
-  });
-}
-
-async function updateTenantMembershipRole({
-  membershipId,
-  role,
-}: {
-  membershipId: string;
-  role: TenantRole;
-}) {
-  return prisma.tenantMembership.update({
-    where: {
-      id: membershipId,
-    },
-    data: {
-      role,
-      isActive: true,
-    },
-  });
-}
-
 export async function findOrCreateAdminFromProvider({
   tenantId,
   provider,
@@ -351,67 +290,25 @@ export async function findOrCreateAdminFromProvider({
   }
 
   const providerType = providerMap[provider];
-  const tenant = await getLoginTenant(tenantId);
 
+  // Admin accounts are never created by logging in: they come from the seed
+  // or from a tenant adding the person (membership).
   let user = await findUserByProviderOrEmail({
     providerType,
     providerId,
     email: normalizedEmail,
   });
 
-  const envTenantRole = getEnvTenantRole(normalizedEmail);
-
   if (!user) {
-    if (!envTenantRole) {
-      throw new Error(
-        "This email is not allowed to access the admin dashboard.",
-      );
-    }
-
-    user = await prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        name: name ?? null,
-        picture: picture ?? null,
-        platformRole: getPlatformRole(normalizedEmail),
-        isActive: true,
-        lastLoginAt: new Date(),
-        authProviders: {
-          create: {
-            provider: providerType,
-            providerAccountId: providerId,
-            email: normalizedEmail,
-            username: username ?? null,
-            name: name ?? null,
-            picture: picture ?? null,
-          },
-        },
-      },
-      include: {
-        authProviders: true,
-      },
-    });
+    throw new Error("This email is not allowed to access the admin dashboard.");
   }
 
   if (!user.isActive) {
     throw new Error("This account is inactive.");
   }
 
-  const platformRole = getPlatformRole(normalizedEmail);
-
-  if (user.platformRole !== platformRole) {
-    user = await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        platformRole,
-      },
-      include: {
-        authProviders: true,
-      },
-    });
-  }
+  const superAdmin = isPlatformSuperAdmin(user);
+  const tenant = await getLoginTenant(tenantId, { allowInactive: superAdmin });
 
   await linkAuthProvider({
     userId: user.id,
@@ -423,43 +320,26 @@ export async function findOrCreateAdminFromProvider({
     picture: picture ?? null,
   });
 
-  const existingMembership = await getExistingTenantMembership({
-    userId: user.id,
-    tenantId: tenant.id,
-  });
+  let role: TenantRole;
 
-  let membership = existingMembership;
-
-  if (!membership) {
-    if (!envTenantRole) {
-      throw new Error(
-        "This email is not allowed to access the admin dashboard.",
-      );
-    }
-
-    membership = await createTenantMembership({
+  if (superAdmin) {
+    // No membership needed; owner rights in whichever tenant they're in.
+    role = TenantRole.OWNER;
+  } else {
+    const membership = await getExistingTenantMembership({
       userId: user.id,
       tenantId: tenant.id,
-      role: envTenantRole,
     });
-  } else if (!membership.isActive) {
-    throw new Error("This tenant membership is inactive.");
-  } else if (envTenantRole) {
-    const strongestRole = getStrongestTenantRole(
-      membership.role,
-      envTenantRole,
-    );
 
-    if (membership.role !== strongestRole) {
-      membership = await updateTenantMembershipRole({
-        membershipId: membership.id,
-        role: strongestRole,
-      });
+    if (!membership || !membership.isActive) {
+      throw new Error("You don't have access to this business's dashboard.");
     }
-  }
 
-  if (!isAdminRole(membership.role)) {
-    throw new Error("You do not have admin access.");
+    if (!isAdminRole(membership.role)) {
+      throw new Error("You do not have admin access.");
+    }
+
+    role = membership.role;
   }
 
   user = await prisma.user.update({
@@ -480,7 +360,8 @@ export async function findOrCreateAdminFromProvider({
     ...user,
     tenantId: tenant.id,
     tenantSlug: tenant.slug,
-    role: membership.role,
+    role,
+    isPlatformAdmin: superAdmin,
     clientId: null,
     client: null,
     driver: null,
@@ -522,7 +403,7 @@ export async function findOrCreateClientFromProvider({
         email: normalizedEmail,
         name: name ?? null,
         picture: picture ?? null,
-        platformRole: getPlatformRole(normalizedEmail),
+        platformRole: PlatformRole.USER,
         isActive: true,
         lastLoginAt: new Date(),
         authProviders: {
@@ -544,22 +425,6 @@ export async function findOrCreateClientFromProvider({
 
   if (!user.isActive) {
     throw new Error("This account is inactive.");
-  }
-
-  const platformRole = getPlatformRole(normalizedEmail);
-
-  if (user.platformRole !== platformRole) {
-    user = await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        platformRole,
-      },
-      include: {
-        authProviders: true,
-      },
-    });
   }
 
   await linkAuthProvider({
@@ -715,6 +580,11 @@ passport.deserializeUser(async (sessionUser: any, done) => {
 
       tenant = membership?.tenant ?? null;
 
+      // Super admins don't need a membership (any tenant, any status).
+      if (isPlatformSuperAdmin(user)) {
+        tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+      }
+
       client = await prisma.client.findUnique({
         where: {
           tenantId_userId: {
@@ -762,11 +632,15 @@ passport.deserializeUser(async (sessionUser: any, done) => {
     // Access comes from the database on every request, never from what was
     // saved in the session at login. A deactivated or deleted membership
     // loses tenant access immediately instead of when the cookie expires.
+    const superAdmin = isPlatformSuperAdmin(user);
+    const hasTenantAccess = Boolean(membership) || (superAdmin && tenant);
+
     done(null, {
       ...user,
-      tenantId: membership ? (tenant?.id ?? null) : null,
-      tenantSlug: membership ? (tenant?.slug ?? null) : null,
-      role: membership?.role ?? null,
+      isPlatformAdmin: superAdmin,
+      tenantId: hasTenantAccess ? (tenant?.id ?? null) : null,
+      tenantSlug: hasTenantAccess ? (tenant?.slug ?? null) : null,
+      role: superAdmin && tenant ? TenantRole.OWNER : (membership?.role ?? null),
       clientId: membership ? (client?.id ?? null) : null,
       client: membership ? client : null,
       driver: membership ? driver : null,

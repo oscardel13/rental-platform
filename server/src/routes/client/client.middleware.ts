@@ -37,6 +37,7 @@ type AuthenticatedUser = {
   } | null;
 
   isActive?: boolean;
+  isPlatformAdmin?: boolean;
 };
 
 function getRequestUser(req: Request) {
@@ -66,6 +67,28 @@ export function requireTenantRole(...allowedRoles: TenantRole[]) {
       return res.status(403).json({
         error: "Account is inactive.",
       });
+    }
+
+    /**
+     * Platform super admins work in whichever tenant's site/API they're on,
+     * with owner rights and no membership. Pointing req.user at that tenant
+     * keeps every tenant-scoped query below working unchanged.
+     */
+    if (user.platformRole === PlatformRole.SUPER_ADMIN) {
+      const tenantId = req.tenant?.id ?? user.tenantId;
+
+      if (!tenantId) {
+        return res.status(403).json({
+          error: "Open a business's site to manage it.",
+        });
+      }
+
+      user.tenantId = tenantId;
+      user.tenantSlug = req.tenant?.slug ?? user.tenantSlug;
+      user.role = TenantRole.OWNER;
+      user.isPlatformAdmin = true;
+
+      return next();
     }
 
     if (!user.tenantId) {

@@ -190,12 +190,21 @@ async function handleOAuthRedirect(req: Request, res: Response) {
  * Starts a Google login for the tenant whose site sent the user here.
  * Unknown sites and inactive tenants are refused before going to Google.
  */
-function startGoogleLogin(strategy: string, callbackPath: string) {
+function startGoogleLogin(
+  strategy: string,
+  callbackPath: string,
+  { allowInactiveTenant = false }: { allowInactiveTenant?: boolean } = {},
+) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const site = await getLoginSite(req);
 
-      if (!site || !isTenantUsable(site.tenant.status)) {
+      // Customers can't log in to an inactive tenant. Admin login continues:
+      // the verify step only lets super admins into an inactive tenant.
+      if (
+        !site ||
+        (!allowInactiveTenant && !isTenantUsable(site.tenant.status))
+      ) {
         return res.redirect("/auth/failure");
       }
 
@@ -231,7 +240,9 @@ function finishGoogleLogin(strategy: string, callbackPath: string) {
 
 AuthRouter.get(
   "/admin/google",
-  startGoogleLogin("google-admin", "/auth/admin/google/callback"),
+  startGoogleLogin("google-admin", "/auth/admin/google/callback", {
+    allowInactiveTenant: true,
+  }),
 );
 
 AuthRouter.get(
